@@ -69,53 +69,73 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
             char symbol;
             while (successfulTokens < count)
             {
-                symbol = _Document.Consume();
+                symbol = _Document.Peek();
 
                 if (symbol == '\0')
                     break;
-
-                AdvanceIndex();
-
-                if (IsLineBreak(symbol))
+                else if (char.IsWhiteSpace(symbol))
                 {
-                    AdvanceLine();
+                    _Document.Consume();
+                    AdvanceIndex();
+
+                    if (IsLineBreak(symbol))
+                        AdvanceLine();
+
                     continue;
                 }
-                else if (char.IsWhiteSpace(symbol))
-                    continue;
-
-                _TokenBuffer.Append(symbol);
-
-                if (symbol == 'c' && _Document.Peek(4) == "lass")
+                else if (_Document.Peek(5) == "class")
                 {
-                    AdvanceIndex(4);
-                    _TokenBuffer.Append(_Document.Consume(4));
+                    AdvanceIndex(5);
+                    _TokenBuffer.Append(_Document.Consume(5));
                     _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Keyword_Class));
                 }
                 else if (symbol == '{')
-                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_CurlyBracketLeft));
-                else if (symbol == '}')
-                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight));
-                else if (symbol == '=')
-                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_Assign));
-                else if (symbol == '+' && _Document.Peek() == '=')
                 {
                     AdvanceIndex();
                     _TokenBuffer.Append(_Document.Consume());
+                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_CurlyBracketLeft));
+                }
+                else if (symbol == '}')
+                {
+                    AdvanceIndex();
+                    _TokenBuffer.Append(_Document.Consume());
+                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight));
+                }
+                else if (symbol == '=')
+                {
+                    AdvanceIndex();
+                    _TokenBuffer.Append(_Document.Consume());
+                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_Assign));
+                }
+                else if (_Document.Peek(2) == "+=")
+                {
+                    AdvanceIndex(2);
+                    _TokenBuffer.Append(_Document.Consume(2));
                     _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_PlusAssign));
                 }
-                else if (symbol == '-' && _Document.Peek() == '=')
+                else if (_Document.Peek(2) == "-=")
                 {
-                    AdvanceIndex();
-                    _TokenBuffer.Append(_Document.Consume());
+                    AdvanceIndex(2);
+                    _TokenBuffer.Append(_Document.Consume(2));
                     _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_MinusAssign));
                 }
                 else if (symbol == ',')
+                {
+                    AdvanceIndex();
+                    _TokenBuffer.Append(_Document.Consume());
                     _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_Comma));
+                }
                 else if (symbol == ';')
+                {
+                    AdvanceIndex();
+                    _TokenBuffer.Append(_Document.Consume());
                     _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_Semicolumn));
+                }
                 else if (symbol == '\"')
                 {
+                    AdvanceIndex();
+                    _TokenBuffer.Append(_Document.Consume());
+
                     while (true)
                     {
                         symbol = _Document.Consume();
@@ -145,6 +165,9 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
                 }
                 else if (char.IsNumber(symbol))
                 {
+                    AdvanceIndex();
+                    _TokenBuffer.Append(_Document.Consume());
+
                     while (true)
                     {
                         symbol = _Document.Peek();
@@ -166,6 +189,9 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
                 }
                 else
                 {
+                    AdvanceIndex();
+                    _TokenBuffer.Append(_Document.Consume());
+
                     while (true)
                     {
                         symbol = _Document.Peek();
