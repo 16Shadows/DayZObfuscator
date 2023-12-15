@@ -1,6 +1,6 @@
 ﻿namespace DayZObfuscatorModel.Parser
 {
-	public abstract class LexerBase
+	public abstract class LexerBase<LexerToken> where LexerToken : LexerTokenBase
 	{
 		protected readonly InputReaderBase _Document;
 

@@ -13,7 +13,7 @@
 
 		override public char Consume() => _ConsumedChars < _Input.Length ? _Input[_ConsumedChars++] : '\0';
 
-		override public IEnumerable<char> Consume(int count)
+		override public string Consume(int count)
 		{
 			if (count < 1)
 				throw new ArgumentOutOfRangeException(nameof(count));
@@ -24,13 +24,13 @@
 			_ConsumedChars += count;
 
 			return available < count ?
-					_Input.Skip(consumed).Take(available).Union(Enumerable.Repeat('\0', count - available)) :
-					_Input.Skip(consumed).Take(count);
+					string.Concat(_Input.AsSpan(consumed, available), string.Join("", Enumerable.Repeat('\0', count - available))) :
+					_Input.Substring(consumed, count);
 		}
 
 		override public char Peek() => _ConsumedChars < _Input.Length ? _Input[_ConsumedChars] : '\0';
 
-		override public IEnumerable<char> Peek(int count)
+		override public string Peek(int count)
 		{
 			if (count < 1)
 				throw new ArgumentOutOfRangeException(nameof(count));
@@ -38,8 +38,13 @@
 			int available = _Input.Length - _ConsumedChars;
 
 			return available < count ?
-					_Input.Skip(_ConsumedChars).Take(available).Union(Enumerable.Repeat('\0', count - available)) :
-					_Input.Skip(_ConsumedChars).Take(count);
+					string.Concat(_Input.AsSpan(_ConsumedChars, available), string.Join("", Enumerable.Repeat('\0', count - available))) :
+					_Input.Substring(_ConsumedChars, count);
+		}
+
+		public static implicit operator StringInputReader(string text)
+		{
+			return new StringInputReader(text);
 		}
 	}
 }

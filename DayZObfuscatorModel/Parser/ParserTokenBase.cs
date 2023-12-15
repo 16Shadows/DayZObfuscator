@@ -2,9 +2,9 @@
 {
     public abstract class ParserTokenBase
     {
-        public LexerToken LexerToken { get; }
+        public LexerTokenBase LexerToken { get; }
 
-        public ParserTokenBase(LexerToken lexerToken)
+        public ParserTokenBase(LexerTokenBase lexerToken)
         {
             LexerToken = lexerToken ?? throw new ArgumentNullException(nameof(lexerToken));
         }
