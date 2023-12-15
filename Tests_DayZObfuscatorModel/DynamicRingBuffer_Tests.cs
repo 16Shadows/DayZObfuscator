@@ -314,6 +314,13 @@ namespace DayZObfuscatorModel.Tests
 			Assert.AreEqual(2, buffer.Count);
 			for (int i = 0; i < arr.Length - 1; i++)
 				Assert.AreEqual(arr[i+1], buffer[i]);
+
+			Assert.AreEqual(2, buffer.Pop());
+			Assert.AreEqual(3, buffer.Pop());
+
+			buffer.Add(5);
+
+			Assert.AreEqual(5, buffer.Pop());
 		}
 
 		[TestMethod()]

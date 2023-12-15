@@ -124,7 +124,7 @@ namespace DayZObfuscatorModel
 		public T Pop()
 		{
 			T item = this[0];
-			_ReadIndex = AdjustReadIndex(1);
+			_ReadIndex = (_ReadIndex + 1) % Capacity;
 			_Count--;
 			return item;
 		}
