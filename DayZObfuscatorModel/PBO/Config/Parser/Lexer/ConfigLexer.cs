@@ -168,48 +168,26 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
                     AdvanceIndex();
                     _TokenBuffer.Append(_Document.Consume());
 
-                    while (true)
+                    while( (symbol = _Document.Peek()) != '\0' && char.IsNumber(symbol) )
                     {
-                        symbol = _Document.Peek();
-                        if (symbol == '\0')
-                        {
-                            _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Number));
-                            break;
-                        }
-                        else if (char.IsNumber(symbol))
-                        {
-                            _TokenBuffer.Append(_Document.Consume());
-                            AdvanceIndex();
-                            continue;
-                        }
-
-                        _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Number));                       
-                        break;
+                        _TokenBuffer.Append(_Document.Consume());
+                        AdvanceIndex();
                     }
+
+                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Number));
                 }
                 else
                 {
                     AdvanceIndex();
                     _TokenBuffer.Append(_Document.Consume());
 
-                    while (true)
+                    while( (symbol = _Document.Peek()) != '\0' && _ValidIdentifierSymbol.Contains(char.ToLower(symbol)) )
                     {
-                        symbol = _Document.Peek();
-                        if (symbol == '\0')
-                        {
-                            _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Identifier));
-                            break;
-                        }
-                        else if (_ValidIdentifierSymbol.Contains(char.ToLower(symbol)))
-                        {
-                            _TokenBuffer.Append(_Document.Consume());
-                            AdvanceIndex();
-                            continue;
-                        }
-
-                        _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Identifier));                       
-                        break;
+                        _TokenBuffer.Append(_Document.Consume());
+                        AdvanceIndex();
                     }
+
+                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Identifier));
                 }
 
                 successfulTokens++;
