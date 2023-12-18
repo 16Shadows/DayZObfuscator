@@ -1,6 +1,6 @@
 ﻿namespace DayZObfuscatorModel.Parser
 {
-	public abstract class ParserBase<LexerToken, TokenFamily> where TokenFamily : ParserTokenBase where LexerToken : LexerTokenBase
+	public abstract class ParserBase<LexerToken, ParserResult> where LexerToken : LexerTokenBase
 	{
 		protected readonly LexerBase<LexerToken> _Lexer;
 
@@ -9,6 +9,6 @@
 			_Lexer = lexer;
 		}
 
-		public abstract TokenFamily Parse();
+		public abstract ParserResult Parse();
 	}
 }
