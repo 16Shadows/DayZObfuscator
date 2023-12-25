@@ -24,7 +24,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "class Test";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			//While the test can be implemented without the second array, having it allows as to properly look into what the lexer has produced when debugging.
 			ConfigToken[] lexer_result = new ConfigToken[3];
@@ -46,7 +46,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "class Test";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			document_lexemes.SequenceEqual(lexer.Consume(2));
 		}
@@ -62,7 +62,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "class Test";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			Assert.IsTrue(document_lexemes.SequenceEqual(lexer.Consume(5)));
 		}
@@ -71,7 +71,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 		public void ConsumeNInvalid_Test()
 		{
 			StringInputReader document = "class Test";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			Assert.ThrowsException<ArgumentOutOfRangeException>(() => lexer.Consume(-5));
 		}
@@ -87,7 +87,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "class Test";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			Assert.AreEqual(document_lexemes[0], lexer.Peek());
 			Assert.AreEqual(document_lexemes[0], lexer.Peek());
@@ -107,7 +107,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "class Test";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			Assert.IsTrue(document_lexemes.SequenceEqual(lexer.Peek(2)));
 		}
@@ -116,7 +116,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 		public void PeekNInvalid_Test()
 		{
 			StringInputReader document = "class Test";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			Assert.ThrowsException<ArgumentOutOfRangeException>(() => lexer.Peek(-5));
 		}
@@ -132,7 +132,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "class Test";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			Assert.IsTrue(document_lexemes.SequenceEqual(lexer.Peek(5)));
 		}
@@ -180,7 +180,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 										 "\tarr[] -= { 52 };\n" +
 										 "}";
 
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 			ConfigToken[] lexer_result = lexer.Consume(document_lexemes.Length).ToArray();
 
 			for (int i = 0; i < lexer_result.Length; i++)
@@ -196,7 +196,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "\"Hello, world!";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			ConfigToken[] lexer_result = lexer.Consume(document_lexemes.Length).ToArray();
 			for (int i = 0; i < lexer_result.Length; i++)
@@ -212,7 +212,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "\"Hello, world!\"";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			ConfigToken[] lexer_result = lexer.Consume(document_lexemes.Length).ToArray();
 			for (int i = 0; i < lexer_result.Length; i++)
@@ -228,7 +228,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			};
 
 			StringInputReader document = "522";
-			LexerBase<ConfigToken> lexer = new ConfigLexer(document);
+			ILexer<ConfigToken> lexer = new ConfigLexer(document);
 
 			ConfigToken[] lexer_result = lexer.Consume(document_lexemes.Length).ToArray();
 			for (int i = 0; i < lexer_result.Length; i++)

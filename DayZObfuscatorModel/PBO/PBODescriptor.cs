@@ -6,9 +6,9 @@ namespace DayZObfuscatorModel.PBO
 	{
 		public ICollection<PBOFile> Files { get; } = new HashSet<PBOFile>();
 
-		public PBOConfig Config { get; }
+		public PBOConfigClass Config { get; }
 
-		public PBODescriptor(PBOConfig config)
+		public PBODescriptor(PBOConfigClass config)
 		{
 			ArgumentNullException.ThrowIfNull(config);
 

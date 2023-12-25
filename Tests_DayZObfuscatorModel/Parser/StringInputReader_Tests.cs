@@ -15,7 +15,7 @@ namespace DayZObfuscatorModel.Parser.Tests
 		public void Consume_Test()
 		{
 			string data = "Hello, world!";
-			StringInputReader reader = new StringInputReader(data);
+			StringInputReader reader = data;
 				
 			foreach (char c in data)
 				Assert.AreEqual(c, reader.Consume());
@@ -27,7 +27,7 @@ namespace DayZObfuscatorModel.Parser.Tests
 		public void ConsumeN_Test()
 		{
 			string data = "Hello, world!";
-			StringInputReader reader = new StringInputReader(data);
+			StringInputReader reader = data;
 
 			Assert.IsTrue(data[0..5].SequenceEqual(reader.Consume(5)));
 			Assert.IsTrue(data[5..7].SequenceEqual(reader.Consume(2)));
@@ -40,7 +40,7 @@ namespace DayZObfuscatorModel.Parser.Tests
 		public void ConsumeNInvalid_Test()
 		{
 			string data = "Hello, world!";
-			StringInputReader reader = new StringInputReader(data);
+			StringInputReader reader = data;
 
 			Assert.ThrowsException<ArgumentOutOfRangeException>(() => reader.Consume(-2));
 		}
@@ -49,7 +49,7 @@ namespace DayZObfuscatorModel.Parser.Tests
 		public void Peek_Test()
 		{
 			string data = "Hello, world!";
-			StringInputReader reader = new StringInputReader(data);
+			StringInputReader reader = data;
 
 			Assert.AreEqual(data[0], reader.Peek());
 			Assert.AreEqual(data[0], reader.Peek());
@@ -62,16 +62,16 @@ namespace DayZObfuscatorModel.Parser.Tests
 		public void PeekBeyondEnd_Test()
 		{
 			string data = "Hello, world!";
-			StringInputReader reader = new StringInputReader(data);
+			StringInputReader reader = data;
 			
-			Assert.IsTrue( data.Union(Enumerable.Repeat('\0', 1)).SequenceEqual(reader.Peek(data.Length + 1)) );
+			Assert.IsTrue( data.Concat(Enumerable.Repeat('\0', 1)).SequenceEqual(reader.Peek(data.Length + 1)) );
 		}
 
 		[TestMethod()]
 		public void PeekNBeyondEnd_Test()
 		{
 			string data = "Hello, world!";
-			StringInputReader reader = new StringInputReader(data);
+			StringInputReader reader = data;
 				
 			reader.Consume(data.Length);
 
@@ -82,7 +82,7 @@ namespace DayZObfuscatorModel.Parser.Tests
 		public void PeekN_Test()
 		{
 			string data = "Hello, world!";
-			StringInputReader reader = new StringInputReader(data);
+			StringInputReader reader = data;
 
 			Assert.IsTrue(data[0..3].SequenceEqual(reader.Peek(3)));
 			Assert.IsTrue(data[0..3].SequenceEqual(reader.Peek(3)));
@@ -95,7 +95,7 @@ namespace DayZObfuscatorModel.Parser.Tests
 		public void PeekNInvalid_Test()
 		{
 			string data = "Hello, world!";
-			StringInputReader reader = new StringInputReader(data);
+			StringInputReader reader = data;
 
 			Assert.ThrowsException<ArgumentOutOfRangeException>(() => reader.Peek(-2));
 		}

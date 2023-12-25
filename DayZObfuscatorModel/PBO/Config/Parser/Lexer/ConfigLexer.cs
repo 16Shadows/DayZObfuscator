@@ -4,24 +4,28 @@ using System.Text;
 
 namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
 {
-    public class ConfigLexer : LexerBase<ConfigToken>
+    public class ConfigLexer : ILexer<ConfigToken>
     {
+        protected readonly IInputReader _Document;
         protected readonly DynamicRingBuffer<ConfigToken> _ParsedTokens = new DynamicRingBuffer<ConfigToken>(10);
         protected readonly StringBuilder _TokenBuffer = new StringBuilder(50);
         protected int _IndexCounter = -1;
         protected int _LineCounter = 0;
         protected int _IndexOnLineCounter = -1;
 
-        public ConfigLexer(InputReaderBase document) : base(document) { }
+        public ConfigLexer(IInputReader document)
+        {
+            _Document = document;
+        }
 
-        public override ConfigToken Consume()
+        public ConfigToken Consume()
         {
             return _ParsedTokens.Count == 0 && Parse(1) == 0 ?
                    GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.EndOfDocument) :
                    _ParsedTokens.Pop();
         }
 
-        public override IEnumerable<ConfigToken> Consume(int count)
+        public IEnumerable<ConfigToken> Consume(int count)
         {
             if (count < 1)
                 throw new ArgumentOutOfRangeException(nameof(count));
@@ -33,14 +37,14 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
                    _ParsedTokens.Pop(count);
         }
 
-        public override ConfigToken Peek()
+        public ConfigToken Peek()
         {
             return _ParsedTokens.Count == 0 && Parse(1) == 0 ?
                    GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.EndOfDocument) :
                    _ParsedTokens[0];
         }
 
-        public override IEnumerable<ConfigToken> Peek(int count)
+        public IEnumerable<ConfigToken> Peek(int count)
         {
             if (count < 1)
                 throw new ArgumentOutOfRangeException(nameof(count));
@@ -168,7 +172,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
                     AdvanceIndex();
                     _TokenBuffer.Append(_Document.Consume());
 
-                    while( (symbol = _Document.Peek()) != '\0' && char.IsNumber(symbol) )
+                    while( (symbol = _Document.Peek()) != '\0' && (char.IsNumber(symbol) || symbol == '.') )
                     {
                         _TokenBuffer.Append(_Document.Consume());
                         AdvanceIndex();
