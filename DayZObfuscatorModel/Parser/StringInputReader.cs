@@ -1,6 +1,6 @@
 ﻿namespace DayZObfuscatorModel.Parser
 {
-	public class StringInputReader : InputReaderBase
+	public class StringInputReader : IInputReader
 	{
 		private int _ConsumedChars;
 		private readonly string _Input;
@@ -11,9 +11,9 @@
 			_ConsumedChars = 0;
 		}
 
-		override public char Consume() => _ConsumedChars < _Input.Length ? _Input[_ConsumedChars++] : '\0';
+		public char Consume() => _ConsumedChars < _Input.Length ? _Input[_ConsumedChars++] : '\0';
 
-		override public string Consume(int count)
+		public string Consume(int count)
 		{
 			if (count < 1)
 				throw new ArgumentOutOfRangeException(nameof(count));
@@ -28,9 +28,9 @@
 					_Input.Substring(consumed, count);
 		}
 
-		override public char Peek() => _ConsumedChars < _Input.Length ? _Input[_ConsumedChars] : '\0';
+		public char Peek() => _ConsumedChars < _Input.Length ? _Input[_ConsumedChars] : '\0';
 
-		override public string Peek(int count)
+		public string Peek(int count)
 		{
 			if (count < 1)
 				throw new ArgumentOutOfRangeException(nameof(count));
