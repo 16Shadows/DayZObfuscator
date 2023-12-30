@@ -38,7 +38,7 @@
 			if (!Path.IsPathFullyQualified(absolutePath))
 				throw new ArgumentException($"{nameof(absolutePath)} ({absolutePath}) should be a fully qualified path.");
 			else if (Path.IsPathRooted(pboPath) || _Filename == null)
-				throw new ArgumentException($"{nameof(pboPath)} ({pboPath}) should be a valid relaitve non-rooted path to a file.");
+				throw new ArgumentException($"{nameof(pboPath)} ({pboPath}) should be a valid relative non-rooted path to a file.");
 
 			AbsolutePath = absolutePath;
 			_PathInPBO = Path.GetDirectoryName(pboPath) ?? "";
