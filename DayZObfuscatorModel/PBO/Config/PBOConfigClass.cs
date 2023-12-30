@@ -49,5 +49,15 @@ namespace DayZObfuscatorModel.PBO.Config
 
 			return sb.ToString();
 		}
+
+		public override bool Equals(object? obj)
+		{
+			return base.Equals(obj) && obj is PBOConfigClass other && Expressions.SequenceEqualsOrderInvariant(other.Expressions);
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(base.GetHashCode(), Identifier);
+		}
 	}
 }

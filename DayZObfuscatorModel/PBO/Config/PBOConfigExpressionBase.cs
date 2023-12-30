@@ -14,5 +14,15 @@ namespace DayZObfuscatorModel.PBO.Config
 		{
 			Identifier = identifier;
 		}
+
+		public override bool Equals(object? obj)
+		{
+			return obj is PBOConfigExpressionBase other && Identifier == other.Identifier;
+		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Identifier);
+		}
 	}
 }

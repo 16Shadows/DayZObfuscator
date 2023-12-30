@@ -49,27 +49,44 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				throw new InvalidSyntaxException($"Expected array identifier, found '{identifier.Token}'", identifier.Index, identifier.Line, identifier.IndexOnLine);
 
 			ConfigToken expressionToken = lexer.Consume();
+			
+			PBOConfigArrayExpressionBase expr = null;
+			
 			if (expressionToken.TokenType == ConfigToken.ConfigTokenType.Symbol_Assign)
-				return new PBOConfigArrayExpressionAssignment(identifier.TokenTrimmed, ParseArray(lexer));
+				expr = new PBOConfigArrayExpressionAssignment(identifier.TokenTrimmed, ParseArray(lexer));
 			else if (expressionToken.TokenType == ConfigToken.ConfigTokenType.Symbol_PlusAssign)
-				return new PBOConfigArrayExpressionUnion(identifier.TokenTrimmed, ParseArray(lexer));
+				expr = new PBOConfigArrayExpressionAdd(identifier.TokenTrimmed, ParseArray(lexer));
 			else if (expressionToken.TokenType == ConfigToken.ConfigTokenType.Symbol_MinusAssign)
-				return new PBOConfigArrayExpressionDifference(identifier.TokenTrimmed, ParseArray(lexer));
+				expr = new PBOConfigArrayExpressionSubtract(identifier.TokenTrimmed, ParseArray(lexer));
 			else
 				throw new InvalidSyntaxException($"Expected expression symbol, found '{identifier.Token}'", identifier.Index, identifier.Line, identifier.IndexOnLine);
+
+			ConfigToken nextToken = lexer.Consume();
+			if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Semicolumn)
+				throw new InvalidSyntaxException($"Expected ';', found '{nextToken.Token}'", nextToken.Index, nextToken.Line, nextToken.IndexOnLine);
+
+			return expr;
 		}
 
 		protected PBOConfigExpressionBase ParseVariableExpression(ILexer<ConfigToken> lexer)
 		{
 			ConfigToken identifier = lexer.Consume();
-			if (identifier.TokenType != ConfigToken.ConfigTokenType.Identifier || !identifier.Token.EndsWith("[]"))
-				throw new InvalidSyntaxException($"Expected array identifier, found '{identifier.Token}'", identifier.Index, identifier.Line, identifier.IndexOnLine);
+			if (identifier.TokenType != ConfigToken.ConfigTokenType.Identifier || identifier.Token.EndsWith("[]"))
+				throw new InvalidSyntaxException($"Expected variable identifier, found '{identifier.Token}'", identifier.Index, identifier.Line, identifier.IndexOnLine);
 
 			ConfigToken expressionToken = lexer.Consume();
+
+			PBOConfigExpressionBase expr = null;
 			if (expressionToken.TokenType == ConfigToken.ConfigTokenType.Symbol_Assign)
-				return new PBOConfigExpressionVariableAssignment(identifier.TokenTrimmed, ParseValue(lexer));
+				expr = new PBOConfigExpressionVariableAssignment(identifier.TokenTrimmed, ParseValue(lexer));
 			else
 				throw new InvalidSyntaxException($"Expected expression symbol, found '{identifier.Token}'", identifier.Index, identifier.Line, identifier.IndexOnLine);
+			
+			ConfigToken nextToken = lexer.Consume();
+			if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Semicolumn)
+				throw new InvalidSyntaxException($"Expected ';', found '{nextToken.Token}'", nextToken.Index, nextToken.Line, nextToken.IndexOnLine);
+
+			return expr;
 		}
 
 		protected object ParseValue(ILexer<ConfigToken> lexer)
@@ -120,10 +137,6 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			nextToken = lexer.Consume();
 			if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight)
 				throw new InvalidSyntaxException($"Expected '}}', found '{nextToken.Token}'", nextToken.Index, nextToken.Line, nextToken.IndexOnLine);
-
-			nextToken = lexer.Consume();
-			if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Semicolumn)
-				throw new InvalidSyntaxException($"Expected ';', found '{nextToken.Token}'", nextToken.Index, nextToken.Line, nextToken.IndexOnLine);
 
 			return arr;
 		}
