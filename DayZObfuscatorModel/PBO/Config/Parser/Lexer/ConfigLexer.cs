@@ -33,7 +33,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
             int missingTokens = count - _ParsedTokens.Count;
 
             return _ParsedTokens.Count < count && Parse(missingTokens) < missingTokens ?
-                   _ParsedTokens.Pop(_ParsedTokens.Count).Concat(Enumerable.Repeat(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.EndOfDocument), 1)) :
+                   _ParsedTokens.Pop(_ParsedTokens.Count).Concat(Enumerable.Repeat(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.EndOfDocument), count - _ParsedTokens.Count)) :
                    _ParsedTokens.Pop(count);
         }
 
@@ -52,7 +52,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
             int missingTokens = count - _ParsedTokens.Count;
 
             return _ParsedTokens.Count < count && Parse(missingTokens) < missingTokens ?
-                   _ParsedTokens.Take(_ParsedTokens.Count).Concat(Enumerable.Repeat(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.EndOfDocument), 1)) :
+                   _ParsedTokens.Take(_ParsedTokens.Count).Concat(Enumerable.Repeat(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.EndOfDocument), count - _ParsedTokens.Count)) :
                    _ParsedTokens.Take(count);
         }
 
@@ -167,7 +167,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
                         }
                     }
                 }
-                else if (char.IsNumber(symbol))
+                else if (char.IsNumber(symbol) || symbol == '-')
                 {
                     AdvanceIndex();
                     _TokenBuffer.Append(_Document.Consume());

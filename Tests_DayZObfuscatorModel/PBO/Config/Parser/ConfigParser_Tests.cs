@@ -7,6 +7,14 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 	[TestClass()]
 	public class ConfigParser_Tests
 	{
+		class TestErrorResolver : IParserErrorResolver<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates>
+		{
+			public ILexer<ConfigToken> Resolve(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> e)
+			{
+				throw new InvalidSyntaxException($"Syntax error occured with token '{state.CurrentToken}'", state.CurrentToken.Index, state.CurrentToken.Line, state.CurrentToken.IndexOnLine);
+			}
+		}
+
 		[TestMethod()]
 		public void Parse_Test()
 		{
@@ -22,9 +30,12 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\t};\n" +
 										 "};";
 
-			ConfigParser parser = new ConfigParser();
+			ConfigParser parser = new ConfigParser(new TestErrorResolver());
 
-			PBOConfig config = parser.Parse(new ConfigLexer(document));
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			PBOConfig config = result.Result;
+
+			Assert.AreEqual(0, result.Errors.Count());
 
 			Assert.IsNotNull(config);
 			Assert.AreEqual(1, config.Scopes.Count());
@@ -58,6 +69,74 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 
 			Assert.AreEqual("var", config.Scopes.First().Scopes.First().Variables.First().Identifier);
 			Assert.AreEqual(5, config.Scopes.First().Scopes.First().Variables.First().Value);
+		}
+
+		[TestMethod()]
+		public void ParseError_Test()
+		{
+			StringInputReader document = "class Test\n" +
+										 "{\n" +
+										 "\tstr = \"test text;\n" +
+										 "\tarr[] = { 52 }\n" +
+										 "\tarr += { 2, 3, 4 };\n" +
+										 "\tarr[] = 52 ;\n" +
+										 "\tclasS TestInner\n" +
+										 "\t{\n" +
+										 "\t\tvar = 5;\n" +
+										 "\t};\n" +
+										 "};";
+			 
+			ConfigParser parser = new ConfigParser(new TestErrorResolver());
+
+			Assert.ThrowsException<InvalidSyntaxException>(() =>
+			{
+				ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			});
+		}
+
+		[TestMethod()]
+		public void Parse_ValueError_BrokenString_Test()
+		{
+			StringInputReader document = "class Test\n" +
+										 "{\n" +
+										 "\tstr = \"test text;\n" +
+										 ";};";
+			 
+			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+
+			Assert.AreEqual(1, result.Errors.Count());
+			Assert.AreEqual(ConfigParserErrors.BrokenString, result.Errors.First().Message);
+		}
+
+		[TestMethod()]
+		public void Parse_ValueError_InvalidNumber_Test()
+		{
+			StringInputReader document = "class Test\n" +
+										 "{\n" +
+										 "\tstr = -22.32.33;\n" +
+										 "};";
+			 
+			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+
+			Assert.AreEqual(1, result.Errors.Count());
+			Assert.AreEqual(ConfigParserErrors.InvalidNumber, result.Errors.First().Message);
+		}
+
+		[TestMethod()]
+		public void Parse_ValueError_InvalidToken_Test()
+		{
+			StringInputReader document = "class Test\n" +
+										 "{\n" +
+										 "\tstr = var22;\n" +
+										 "};";
+			 
+			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+
+			Assert.AreEqual(1, result.Errors.Count());
+			Assert.AreEqual(ConfigParserErrors.UnexpectedToken, result.Errors.First().Message);
 		}
 	}
 }
