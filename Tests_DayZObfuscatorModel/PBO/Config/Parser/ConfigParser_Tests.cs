@@ -100,13 +100,14 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 			StringInputReader document = "class Test\n" +
 										 "{\n" +
 										 "\tstr = \"test text;\n" +
-										 ";};";
+										 "};";
 			 
 			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
 			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
 
-			Assert.AreEqual(1, result.Errors.Count());
+			Assert.AreEqual(2, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.BrokenString, result.Errors.First().Message);
+			Assert.AreEqual(ConfigParserErrors.ExpectedSemicolumn, result.Errors.Skip(1).First().Message);
 		}
 
 		[TestMethod()]

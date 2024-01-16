@@ -32,9 +32,13 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
 
             int missingTokens = count - _ParsedTokens.Count;
 
-            return _ParsedTokens.Count < count && Parse(missingTokens) < missingTokens ?
-                   _ParsedTokens.Pop(_ParsedTokens.Count).Concat(Enumerable.Repeat(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.EndOfDocument), count - _ParsedTokens.Count)) :
-                   _ParsedTokens.Pop(count);
+            if (_ParsedTokens.Count < count && Parse(missingTokens) < missingTokens)
+            {
+                int padding = count - _ParsedTokens.Count;
+                return _ParsedTokens.Pop(_ParsedTokens.Count).Concat(Enumerable.Repeat(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.EndOfDocument), padding));
+            }
+            else
+                return _ParsedTokens.Pop(count);
         }
 
         public ConfigToken Peek()

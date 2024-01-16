@@ -21,7 +21,7 @@ namespace DayZObfuscatorModel.Parser
 
 		public IEnumerable<ParserError> Errors { get; protected set; }
 
-		public ParseResult<T, ParserError> WithResultAs<T>(Func<ParserResult, T> converter)
+		public virtual ParseResult<T, ParserError> WithResultAs<T>(Func<ParserResult, T> converter)
 		{
 			ArgumentNullException.ThrowIfNull(converter);
 			return new ParseResult<T, ParserError>(converter(Result), Success, Errors);

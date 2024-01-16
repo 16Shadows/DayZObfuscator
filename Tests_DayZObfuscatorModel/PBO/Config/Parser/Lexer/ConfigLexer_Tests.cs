@@ -58,13 +58,16 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			{
 				new ConfigToken(ConfigToken.ConfigTokenType.Keyword_Class, "class", 0, 0, 0),
 				new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Test", 6, 0, 6),
+				new ConfigToken(ConfigToken.ConfigTokenType.EndOfDocument, "", 10, 0, 10),
+				new ConfigToken(ConfigToken.ConfigTokenType.EndOfDocument, "", 10, 0, 10),
 				new ConfigToken(ConfigToken.ConfigTokenType.EndOfDocument, "", 10, 0, 10)
 			};
 
 			StringInputReader document = "class Test";
 			ILexer<ConfigToken> lexer = new ConfigLexer(document);
+			IEnumerable<ConfigToken> res = lexer.Consume(5);
 
-			Assert.IsTrue(document_lexemes.SequenceEqual(lexer.Consume(5)));
+			Assert.IsTrue(document_lexemes.SequenceEqual(res));
 		}
 
 		[TestMethod()]
@@ -128,6 +131,8 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 			{
 				new ConfigToken(ConfigToken.ConfigTokenType.Keyword_Class, "class", 0, 0, 0),
 				new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Test", 6, 0, 6),
+				new ConfigToken(ConfigToken.ConfigTokenType.EndOfDocument, "", 10, 0, 10),
+				new ConfigToken(ConfigToken.ConfigTokenType.EndOfDocument, "", 10, 0, 10),
 				new ConfigToken(ConfigToken.ConfigTokenType.EndOfDocument, "", 10, 0, 10)
 			};
 
