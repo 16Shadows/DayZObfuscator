@@ -121,9 +121,19 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				case ConfigParserErrors.ExpectedRightCurlyBracket:
 					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight, "}", 0, 0, 0);
 					break;
-				case ConfigParserErrors.ExpectedComma:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Comma, ",", 0, 0, 0);
-					break;
+				case ConfigParserErrors.ExpectedCommaOrRightCurlyBracket:
+					{
+						ConfigToken nextToken;
+						if (state.CurrentTokenConsumed)
+							nextToken = lexer.Peek();
+						else
+							nextToken = lexer.Peek(2).First();
+
+						if (nextToken.TokenType == ConfigToken.ConfigTokenType.Number || nextToken.TokenType == ConfigToken.ConfigTokenType.String || nextToken.TokenType == ConfigToken.ConfigTokenType.BrokenString)
+							return lexer.Prepend(new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Comma, ",", 0, 0, 0));
+						else
+							return lexer.Prepend(new ConfigToken(ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight, "}", 0, 0, 0));
+					}
 				default:
 					throw new ArgumentException($"Error {error} is not supported by the resolver for Array state.");
 			}

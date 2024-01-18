@@ -139,5 +139,64 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.UnexpectedToken, result.Errors.First().Message);
 		}
+
+		[TestMethod()]
+		public void Parse_ArrayError_MissingLeftBracket()
+		{
+			StringInputReader document = "class Test\n" +
+										 "{\n" +
+										 "\tarr[] = 22, 33 };\n" +
+										 "};";
+			 
+			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+
+			Assert.AreEqual(1, result.Errors.Count());
+			Assert.AreEqual(ConfigParserErrors.ExpectedLeftCurlyBracket, result.Errors.First().Message);
+		}
+
+		[TestMethod()]
+		public void Parse_ArrayError_MissingRightBracket()
+		{
+			StringInputReader document = "class Test\n" +
+										 "{\n" +
+										 "\tarr[] = { 22, 33 ;\n" +
+										 "};";
+			 
+			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+
+			Assert.AreEqual(1, result.Errors.Count());
+			Assert.AreEqual(ConfigParserErrors.ExpectedCommaOrRightCurlyBracket, result.Errors.First().Message);
+		}
+
+		[TestMethod()]
+		public void Parse_ArrayError_Comma()
+		{
+			StringInputReader document = "class Test\n" +
+										 "{\n" +
+										 "\tarr[] = { 22 33 };\n" +
+										 "};";
+			 
+			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+
+			Assert.AreEqual(1, result.Errors.Count());
+			Assert.AreEqual(ConfigParserErrors.ExpectedCommaOrRightCurlyBracket, result.Errors.First().Message);
+		}
+
+		[TestMethod()]
+		public void Parse_ArrayError_MissingValue()
+		{
+			StringInputReader document = "class Test\n" +
+										 "{\n" +
+										 "\tarr[] = { 22, };\n" +
+										 "};";
+			 
+			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+
+			Assert.AreNotEqual(0, result.Errors.Count());
+		}
 	}
 }

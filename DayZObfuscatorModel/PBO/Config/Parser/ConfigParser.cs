@@ -28,7 +28,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 		ExpectedSemicolumn,
 		ExpectedLeftCurlyBracket,
 		ExpectedRightCurlyBracket,
-		ExpectedComma,
+		ExpectedCommaOrRightCurlyBracket,
 		InvalidNumber,
 		ExpectedClassKeyword,
 		BrokenString
@@ -296,15 +296,17 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			while (true)
 			{
 				nextToken = lexer.Peek();
-				if (nextToken.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight || nextToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
-					break;
-
-				if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Comma)
+				if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Comma && nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight && nextToken.TokenType != ConfigToken.ConfigTokenType.EndOfDocument)
 				{
-					var error = new ParserErrorBase<ConfigParserErrors>(nextToken, ConfigParserErrors.ExpectedComma);
+					var error = new ParserErrorBase<ConfigParserErrors>(nextToken, ConfigParserErrors.ExpectedCommaOrRightCurlyBracket);
 					errors = errors.Append(error);
 					lexer = _ErrorResolver.Resolve(lexer, this, new ParserState<ConfigToken, ConfigParserStates>(ConfigParserStates.Array, nextToken, false, leftBracket, firstValue), error);
 				}
+				nextToken = lexer.Peek();
+
+				if (nextToken.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight || nextToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
+					break;
+
 
 				nextToken = lexer.Consume();
 				
