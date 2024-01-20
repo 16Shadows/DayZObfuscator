@@ -13,13 +13,12 @@ namespace DayZObfuscatorModel.Analyzers.Tests
 	public class ProjectFolderAnalyzer_Tests
 	{
 		[TestMethod()]
-		public void Analyze_Test1()
+		public void Analyze_SingleProject_Test()
 		{
-			if (Directory.Exists("analyze_test1_sample"))
-				Directory.Delete("analyze_test1_sample", true);
+			if (Directory.Exists("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test"))
+				Directory.Delete("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test", true);
 
-			Directory.CreateDirectory("analyze_test1_sample");
-			Directory.CreateDirectory("analyze_test1_sample/SuicideButton");
+			Directory.CreateDirectory("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton");
 
 			string config = "class CfgMods\n" +
 							"{\n" +
@@ -42,8 +41,8 @@ namespace DayZObfuscatorModel.Analyzers.Tests
 							"\t};\n" +
 							"};";
 
-			File.WriteAllText("analyze_test1_sample/SuicideButton/config.cpp", config);
-			Directory.CreateDirectory("analyze_test1_sample/SuicideButton/5_Mission");
+			File.WriteAllText("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton/config.cpp", config);
+			Directory.CreateDirectory("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton/5_Mission");
 
 			string script = "modded class MissionServer\n" + 
 							"{\n" +
@@ -53,11 +52,101 @@ namespace DayZObfuscatorModel.Analyzers.Tests
 							"\t}\n" +
 							"}";
 
-			File.WriteAllText("analyze_test1_sample/SuicideButton/5_Mission/mission.c", script);
+			File.WriteAllText("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton/5_Mission/mission.c", script);
 
-			List<PBODescriptor> pbos = ProjectFolderAnalyzer.Analyze("analyze_test1_sample").ToList();
+			List<PBODescriptor> pbos = ProjectFolderAnalyzer.Analyze("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test").ToList();
 
 			Assert.AreEqual(1, pbos.Count);
+			Assert.AreEqual(Path.GetFullPath("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton"), pbos[0].DirectoryPath);
+		}
+
+		[TestMethod()]
+		public void Analyze_MultiProject_Test()
+		{
+			if (Directory.Exists("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test"))
+				Directory.Delete("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test", true);
+
+			{
+				Directory.CreateDirectory("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton");
+
+				string config = "class CfgMods\n" +
+								"{\n" +
+								"\tclass SuicideButton\n" +
+								"\t{\n" +
+								"\t\tdir=\"SuicideButton\";\n" +
+								"\t\ttype = \"mod\";\n" +
+								"\t\tauthor = \"16Shadows\";\n" +
+								"\t\tversion = \"1.0.0\";\n" +
+								"\t\tname=\"SuicideButton\";\n" +
+								"\t\tdependencies[] = {\"Mission\"};\n" +
+								"\t\tclass defs\n" +
+								"\t\t{\n" +
+								"\t\t\tclass missionScriptModule\n" +
+								"\t\t\t{\n" +
+								"\t\t\t\tvalue = \"\";\n" +
+								"\t\t\t\tfiles[] = {\"SuicideButton/5_Mission\" };\n" +
+								"\t\t\t};\n" +
+								"\t\t};\n" +
+								"\t};\n" +
+								"};";
+
+				File.WriteAllText("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton/config.cpp", config);
+				Directory.CreateDirectory("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton/5_Mission");
+
+				string script = "modded class MissionServer\n" + 
+								"{\n" +
+								"\tvoid MissionServer()\n" +
+								"\t{\n" +
+								"\t\tPrint(\"Hello, world!\");\n" +
+								"\t}\n" +
+								"}";
+
+				File.WriteAllText("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton/5_Mission/mission.c", script);
+			}
+
+			{
+				Directory.CreateDirectory("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton2");
+
+				string config = "class CfgMods\n" +
+								"{\n" +
+								"\tclass SuicideButton2\n" +
+								"\t{\n" +
+								"\t\tdir=\"SuicideButton2\";\n" +
+								"\t\ttype = \"mod\";\n" +
+								"\t\tauthor = \"16Shadows\";\n" +
+								"\t\tversion = \"1.0.0\";\n" +
+								"\t\tname=\"SuicideButton2\";\n" +
+								"\t\tdependencies[] = {\"Mission\"};\n" +
+								"\t\tclass defs\n" +
+								"\t\t{\n" +
+								"\t\t\tclass missionScriptModule\n" +
+								"\t\t\t{\n" +
+								"\t\t\t\tvalue = \"\";\n" +
+								"\t\t\t\tfiles[] = {\"SuicideButton2/5_Mission\" };\n" +
+								"\t\t\t};\n" +
+								"\t\t};\n" +
+								"\t};\n" +
+								"};";
+
+				File.WriteAllText("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton2/config.cpp", config);
+				Directory.CreateDirectory("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton2/5_Mission");
+
+				string script = "modded class MissionServer\n" + 
+								"{\n" +
+								"\tvoid MissionServer()\n" +
+								"\t{\n" +
+								"\t\tPrint(\"Hello, world 2!\");\n" +
+								"\t}\n" +
+								"}";
+
+				File.WriteAllText("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton2/5_Mission/mission.c", script);
+			}
+
+			List<PBODescriptor> pbos = ProjectFolderAnalyzer.Analyze("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test").ToList();
+
+			Assert.AreEqual(2, pbos.Count);
+			Assert.IsTrue(pbos.Any(x => x.DirectoryPath == Path.GetFullPath("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton")));
+			Assert.IsTrue(pbos.Any(x => x.DirectoryPath == Path.GetFullPath("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton2")));
 		}
 	}
 }
