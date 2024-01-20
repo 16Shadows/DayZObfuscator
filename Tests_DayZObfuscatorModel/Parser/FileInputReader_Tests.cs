@@ -40,7 +40,7 @@ namespace DayZObfuscatorModel.Parser.Tests
 			if (File.Exists(path))
 				File.Delete(path);
 
-			Directory.CreateDirectory(Path.GetDirectoryName(path));
+			Directory.CreateDirectory(Path.GetDirectoryName(path) ?? "");
 			File.WriteAllText(path, TestFileContent);
 		}
 
