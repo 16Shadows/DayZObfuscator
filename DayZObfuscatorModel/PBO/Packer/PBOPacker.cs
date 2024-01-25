@@ -25,7 +25,14 @@ namespace DayZObfuscatorModel.PBO.Packer
 			outputDirectory = Path.GetFullPath(outputDirectory);
 			Directory.CreateDirectory(outputDirectory);
 
-			PBOConfigClass? modClass = pbo.Config.Result.Scopes.Where(x => x.Variables.Any(x => x.Identifier == "type" && x.Value is PBOConfigValueString str && str.Value == "mod")).FirstOrDefault();
+			PBOConfigClass? modClass = pbo.Config
+										  .Result
+										  .Scopes
+										  .Where(x => x.Identifier == "CfgMods")
+										  .FirstOrDefault()
+										  ?.Scopes
+										  .Where(x => x.Variables.Any(x => x.Identifier == "type" && x.Value is PBOConfigValueString str && str.Value == "mod"))
+										  .FirstOrDefault();
 
 			if (modClass == null)
 				return PBOPackerErrors.FailedToFindModClass;
