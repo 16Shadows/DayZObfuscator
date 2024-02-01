@@ -53,9 +53,8 @@ namespace DayZObfuscatorModel.Analyzers
 				foreach (PBOFile file in EnumerateFiles(path, "", ignoreFolders).Where(x => x.Filename != "config.cpp"))
 					descriptor.Files.Add(file);
 
-				descriptors = Enumerable.Repeat(descriptor, 1);
+				descriptors = descriptors.Concat(Enumerable.Repeat(descriptor, 1));
 			}
-
 
 			return descriptors;
 		}
