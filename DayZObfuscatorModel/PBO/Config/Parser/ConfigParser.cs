@@ -78,7 +78,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				}
 			}
 
-			return new ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>>(rootScope, true, errors);
+			return new ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>>(rootScope, errors.Count() == 0, errors);
 		}
 
 		public IEnumerable<ParserErrorBase<ConfigParserErrors>> TryParseFromState(ILexer<ConfigToken> lexer, ConfigParserStates state)
