@@ -5,7 +5,9 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DayZObfuscatorModel", "DayZObfuscatorModel\DayZObfuscatorModel.csproj", "{0DA99BBE-DD45-40D3-A4B5-98F39ECD59AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests_DayZObfuscatorModel", "Tests_DayZObfuscatorModel\Tests_DayZObfuscatorModel.csproj", "{D2B8FA02-57E3-41E4-8E8A-2EA4D2B78ECF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests_DayZObfuscatorModel", "Tests_DayZObfuscatorModel\Tests_DayZObfuscatorModel.csproj", "{D2B8FA02-57E3-41E4-8E8A-2EA4D2B78ECF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DayZObfuscatorConsoleApp", "DayZObfuscatorConsoleApp\DayZObfuscatorConsoleApp.csproj", "{17C7686C-FAB4-433D-BEA8-21033B241B69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{D2B8FA02-57E3-41E4-8E8A-2EA4D2B78ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2B8FA02-57E3-41E4-8E8A-2EA4D2B78ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2B8FA02-57E3-41E4-8E8A-2EA4D2B78ECF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
