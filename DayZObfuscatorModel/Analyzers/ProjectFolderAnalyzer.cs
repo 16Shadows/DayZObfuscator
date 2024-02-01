@@ -10,7 +10,7 @@ namespace DayZObfuscatorModel.Analyzers
 	{
 		private static readonly ConfigParser _ConfigParser = new ConfigParser( new ConfigParserErrorResolver() );
 
-		public static PBODescriptor LoadPBO(string pathToRoot)
+		public static PBODescriptor? LoadPBO(string pathToRoot)
 		{
 			if (!Directory.Exists(pathToRoot))
 				throw new ArgumentException("Path should be a valid path to a directory.", nameof(pathToRoot));
@@ -18,7 +18,7 @@ namespace DayZObfuscatorModel.Analyzers
 			pathToRoot = Path.GetFullPath(pathToRoot);
 
 			if (!File.Exists(pathToRoot + "\\config.cpp"))
-				throw new ArgumentException("Target directory doesn't contain config.cpp - not a valid PBO directory", nameof(pathToRoot));
+				return null;
 
 			var result = _ConfigParser.Parse( new ConfigLexer( new FileInputReader(pathToRoot + "\\config.cpp") ) );
 
@@ -66,7 +66,7 @@ namespace DayZObfuscatorModel.Analyzers
 				yield return new PBOFile(Path.GetFullPath(file), relativePath + (relativePath.Length > 0 ? "/" : "") + Path.GetFileName(file));
 
 			foreach (string subdir in Directory.EnumerateDirectories(path).Where(x => dirFilter?.Contains(x) != true))
-				foreach (PBOFile file in EnumerateFiles( subdir, relativePath + Path.GetFileName(subdir), dirFilter ) )
+				foreach (PBOFile file in EnumerateFiles( subdir, relativePath + Path.GetFileName(subdir) + "/", dirFilter ) )
 					yield return file;
 
 			yield break;
