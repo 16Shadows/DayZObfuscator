@@ -59,7 +59,10 @@ namespace DayZObfuscatorConsoleApp
 			{
 				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory);
 				foreach (var descriptor in descriptors)
+				{
 					OutputPBOInfo(descriptor, args);
+					Console.WriteLine("-------");
+				}
 			}
 			else
 			{
@@ -80,10 +83,10 @@ namespace DayZObfuscatorConsoleApp
 			ArgumentNullException.ThrowIfNull(args);
 
 			Console.WriteLine($"Found PBO located in: {descriptor.DirectoryPath}");
-			Console.WriteLine();	
-
+			
 			if (args.DetectConfigErrors)
 			{
+				Console.WriteLine();
 				if (descriptor.Config.Success)
 					Console.WriteLine("No errors were detected in the config file.");
 				else
@@ -91,12 +94,12 @@ namespace DayZObfuscatorConsoleApp
 					Console.WriteLine("Errors in config.cpp:");
 					foreach (var error in descriptor.Config.Errors)
 						Console.WriteLine(FormatConfigError(error));
-				}
-				Console.WriteLine();
+				}	
 			}
 
 			if (args.OutputFilesList)
 			{
+				Console.WriteLine();
 				Console.WriteLine("File list:");
 				if (args.DetailedFileList)
 				{
@@ -109,7 +112,6 @@ namespace DayZObfuscatorConsoleApp
 					foreach (PBOFile file in descriptor.Files)
 						Console.WriteLine(FormatFileEntry(file, false));	
 				}
-				Console.WriteLine();
 			}
 		}
 
