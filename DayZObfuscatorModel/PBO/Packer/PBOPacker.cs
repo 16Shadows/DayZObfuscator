@@ -1,8 +1,10 @@
 ﻿using DayZObfuscatorModel.PBO.Config;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,6 +49,17 @@ namespace DayZObfuscatorModel.PBO.Packer
 			catch
 			{
 				return PBOPackerErrors.AccessToOutputDenied;
+			}
+
+			//Fix possible inconsistencies in config
+			{
+				PBOConfigExpressionVariableAssignment dir = modClass.Variables.First(x => x.Identifier == "dir");
+				if (dir == null)
+					modClass.Expressions.Add(new PBOConfigExpressionVariableAssignment("dir", new PBOConfigValueString(modClass.Identifier)));
+				else if (dir.Value is not PBOConfigValueString str)
+					dir.Value = new PBOConfigValueString(modClass.Identifier);
+				else if (str.Value != modClass.Identifier)
+					str.Value = modClass.Identifier;
 			}
 
 			PBOWriter writer = new PBOWriter(outputFile);
@@ -143,6 +156,17 @@ namespace DayZObfuscatorModel.PBO.Packer
 					writer.Write(file.FileContent);
 				}
 			}
+
+			writer.Flush();			
+
+			outputFile.Seek(0, SeekOrigin.Begin);
+			using SHA1 sha1 = SHA1.Create();
+			byte[] hash = sha1.ComputeHash(outputFile);
+			outputFile.WriteByte(0);
+			outputFile.Write(hash, 0, 20);
+			
+			writer.Dispose();
+			outputFile.Dispose();
 
 			return PBOPackerErrors.Success;
 		}

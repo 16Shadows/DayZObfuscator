@@ -1,17 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DayZObfuscatorModel.PBO.Config
+﻿namespace DayZObfuscatorModel.PBO.Config
 {
 	public class PBOConfigArrayExpressionBase : PBOConfigExpressionBase
 	{
-		public IList<object> Value { get; }
+		private IList<object> _Value;
+
+		public IList<object> Value { get => _Value; set => _Value = value ?? throw new ArgumentNullException(nameof(value)); }
 
 		public PBOConfigArrayExpressionBase(string identifier, IList<object> value) : base(identifier)
 		{
-			Value = value ?? throw new ArgumentNullException(nameof(value));
+			_Value = value ?? throw new ArgumentNullException(nameof(value));
 		}
 
 		public override bool Equals(object? obj)

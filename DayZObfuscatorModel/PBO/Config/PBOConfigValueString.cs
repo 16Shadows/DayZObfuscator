@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DayZObfuscatorModel.PBO.Config
+﻿namespace DayZObfuscatorModel.PBO.Config
 {
 	public class PBOConfigValueString
 	{
-		public string Value { get; set; }
+		private string _Value;
+
+		public string Value { get => _Value; set => _Value = value ?? throw new ArgumentNullException(nameof(value)); }
+
 		public PBOConfigValueString(string value)
 		{
-			Value = value ?? throw new ArgumentNullException(nameof(value));
+			_Value = value ?? throw new ArgumentNullException(nameof(value));
 		}
 
 		public override string ToString()

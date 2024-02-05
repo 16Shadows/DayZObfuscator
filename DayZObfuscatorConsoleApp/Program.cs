@@ -4,14 +4,18 @@ using DayZObfuscatorModel.Parser;
 using DayZObfuscatorModel.PBO;
 using DayZObfuscatorModel.PBO.Config.Parser;
 using DayZObfuscatorModel.PBO.Config.Parser.Lexer;
+using DayZObfuscatorModel.PBO.Packer;
+using System.Net.Http.Headers;
 
 namespace DayZObfuscatorConsoleApp
 {
 	internal class Program
 	{
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 		class BaseArguments
 		{
-			[Option('s', "source", Default = "", HelpText = "Path to the folder", MetaValue = "String", Required = true)]
+			[Option('s', "source", Default = "", HelpText = "Path to the folder", MetaValue = "path", Required = true)]
+
 			public string TargetDirectory { get; set; }
 
 			[Option('r', "recursive", Default = false, HelpText = "If this flag is set, the command will be applied to all possible PBOs in the folder", Required = false)]
@@ -34,8 +38,10 @@ namespace DayZObfuscatorConsoleApp
 		[Verb("build", HelpText = "Build pbo(s) in the target folder")]
 		class BuildArgs : BaseArguments
 		{
-
+			[Option('o', "output", Default = "", HelpText = "Path to output directory", MetaValue = "path", Required = false)]
+			public string OutputDirectory { get; set; }
 		}
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 		static void Main(string[] args)
 		{
@@ -166,7 +172,27 @@ namespace DayZObfuscatorConsoleApp
 
 		static void Build(BuildArgs args)
 		{
+			PBOPacker packer = new PBOPacker();
 
+			//Configure packer here
+
+			if (args.Recursive)
+			{
+				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory);
+				foreach (var descriptor in descriptors)
+					packer.Pack(descriptor, args.OutputDirectory);
+			}
+			else
+			{
+				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(args.TargetDirectory);
+				if (descriptor == null)
+				{
+					Console.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
+					return;
+				}
+
+				packer.Pack(descriptor, args.OutputDirectory);
+			}
 		}
 	}
 }

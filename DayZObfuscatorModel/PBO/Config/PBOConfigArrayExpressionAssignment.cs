@@ -14,7 +14,7 @@ namespace DayZObfuscatorModel.PBO.Config
 
 		public override string ToString()
 		{
-			return $"{Identifier} = {Value.ToString(", ")};";
+			return $"{Identifier} = {{{Value.ToString(", ")}}};";
 		}
 
 		public override bool Equals(object? obj)

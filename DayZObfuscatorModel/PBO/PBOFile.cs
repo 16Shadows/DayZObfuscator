@@ -8,8 +8,8 @@ namespace DayZObfuscatorModel.PBO
 		public static class MimeTypes
 		{
 			public const uint Uncompressed = 0x0;
-			public const uint Properties = 0x73726556;
-			public const uint Compressed = 0x73727043;
+			public const uint Properties = 0x56657273;
+			public const uint Compressed = 0x43707273;
 		}
 
 
