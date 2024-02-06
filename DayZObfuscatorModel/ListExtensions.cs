@@ -12,6 +12,9 @@ namespace DayZObfuscatorModel
 
 		public static string ToString<T>(this IList<T> list, string separator)
 		{
+			if (list.Count == 0)
+				return string.Empty;
+
 			StringBuilder sb = new StringBuilder(list.Count * 10);
 
 			sb.Append(list[0]);
