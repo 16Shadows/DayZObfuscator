@@ -20,6 +20,12 @@ namespace DayZObfuscatorConsoleApp
 
 			[Option('r', "recursive", Default = false, HelpText = "If this flag is set, the command will be applied to all possible PBOs in the folder", Required = false)]
 			public bool Recursive { get; set; }
+
+			[Option("hidden-files", Default = false, HelpText = "If this flag is set, hidden files will be included in the PBO", Required = false)]
+			public bool IncludeHiddenFiles { get; set; }
+
+			[Option("hidden-dirs", Default = false, HelpText = "If this flag is set, hidden files will be included in the PBO", Required = false)]
+			public bool IncludeHiddenDirectories { get; set; }
 		}
 
 		[Verb("analyze", HelpText = "Detect all possible PBOs in the target folder")]
@@ -63,7 +69,7 @@ namespace DayZObfuscatorConsoleApp
 
 			if (args.Recursive)
 			{
-				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory);
+				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
 				foreach (var descriptor in descriptors)
 				{
 					OutputPBOInfo(descriptor, args);
@@ -72,7 +78,7 @@ namespace DayZObfuscatorConsoleApp
 			}
 			else
 			{
-				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(args.TargetDirectory);
+				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
 				if (descriptor == null)
 				{
 					Console.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
@@ -178,13 +184,13 @@ namespace DayZObfuscatorConsoleApp
 
 			if (args.Recursive)
 			{
-				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory);
+				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
 				foreach (var descriptor in descriptors)
 					packer.Pack(descriptor, args.OutputDirectory);
 			}
 			else
 			{
-				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(args.TargetDirectory);
+				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
 				if (descriptor == null)
 				{
 					Console.WriteLine("No PBO found directly in the target directory. Try using -recursive.");

@@ -10,7 +10,7 @@ namespace DayZObfuscatorModel.Analyzers
 	{
 		private static readonly ConfigParser _ConfigParser = new ConfigParser( new ConfigParserErrorResolver() );
 
-		public static PBODescriptor? LoadPBO(string pathToRoot)
+		public static PBODescriptor? LoadPBO(string pathToRoot, bool includeHiddenDirectories = false, bool includeHiddenFiles = false)
 		{
 			if (!Directory.Exists(pathToRoot))
 				throw new ArgumentException("Path should be a valid path to a directory.", nameof(pathToRoot));
@@ -24,13 +24,13 @@ namespace DayZObfuscatorModel.Analyzers
 
 			var descriptor = new PBODescriptor(pathToRoot, result);
 
-			foreach (PBOFile file in EnumerateFiles(pathToRoot, "").Where(x => x.Filename != "config.cpp"))
+			foreach (PBOFile file in EnumerateFiles(pathToRoot, "", null, includeHiddenDirectories, includeHiddenFiles).Where(x => x.Filename != "config.cpp"))
 				descriptor.Files.Add(file);
 
 			return descriptor;
 		}
 
-		public static IEnumerable<PBODescriptor> Analyze(string path)
+		public static IEnumerable<PBODescriptor> Analyze(string path, bool includeHiddenDirectories = false, bool includeHiddenFiles = false)
 		{
 			if (!Directory.Exists(path))
 				throw new ArgumentException("Path should be a valid path to a directory.", nameof(path));
@@ -39,7 +39,11 @@ namespace DayZObfuscatorModel.Analyzers
 
 			IEnumerable<PBODescriptor> descriptors = Enumerable.Empty<PBODescriptor>();
 
-			foreach (string subdir in Directory.EnumerateDirectories(path))
+			IEnumerable<string> subdirs = Directory.EnumerateDirectories(path);
+			if (!includeHiddenDirectories)
+				subdirs = subdirs.Where(x => !PathEx.HasAttribute(x, FileAttributes.Hidden));
+
+			foreach (string subdir in subdirs)
 				descriptors = descriptors.Concat(Analyze(subdir));
 
 			HashSet<string> ignoreFolders = descriptors.Select(x => x.DirectoryPath).ToHashSet();
@@ -50,7 +54,7 @@ namespace DayZObfuscatorModel.Analyzers
 
 				var descriptor = new PBODescriptor(path, result);
 
-				foreach (PBOFile file in EnumerateFiles(path, "", ignoreFolders).Where(x => x.Filename != "config.cpp"))
+				foreach (PBOFile file in EnumerateFiles(path, "", ignoreFolders, includeHiddenDirectories, includeHiddenFiles).Where(x => x.Filename != "config.cpp"))
 					descriptor.Files.Add(file);
 
 				descriptors = descriptors.Concat(Enumerable.Repeat(descriptor, 1));
@@ -59,12 +63,20 @@ namespace DayZObfuscatorModel.Analyzers
 			return descriptors;
 		}
 
-		private static IEnumerable<PBOFile> EnumerateFiles(string path, string relativePath, HashSet<string>? dirFilter = null)
+		private static IEnumerable<PBOFile> EnumerateFiles(string path, string relativePath, HashSet<string>? dirFilter = null, bool includeHiddenDirectories = false, bool includeHiddenFiles = false)
 		{
-			foreach (string file in Directory.EnumerateFiles(path))
+			IEnumerable<string> files = Directory.EnumerateFiles(path);
+			if (!includeHiddenFiles)
+				files = files.Where(x => !PathEx.HasAttribute(x, FileAttributes.Hidden));
+
+			foreach (string file in files)
 				yield return new PBOFile(Path.GetFullPath(file), relativePath + (relativePath.Length > 0 ? "/" : "") + Path.GetFileName(file));
 
-			foreach (string subdir in Directory.EnumerateDirectories(path).Where(x => dirFilter?.Contains(x) != true))
+			IEnumerable<string> subdirs = Directory.EnumerateDirectories(path).Where(x => dirFilter?.Contains(x) != true);
+			if (!includeHiddenDirectories)
+				subdirs = subdirs.Where(x => !PathEx.HasAttribute(x, FileAttributes.Hidden));
+
+			foreach (string subdir in subdirs)
 				foreach (PBOFile file in EnumerateFiles( subdir, relativePath + Path.GetFileName(subdir) + "/", dirFilter ) )
 					yield return file;
 
