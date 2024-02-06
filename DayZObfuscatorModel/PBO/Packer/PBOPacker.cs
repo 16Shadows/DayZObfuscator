@@ -1,12 +1,6 @@
 ﻿using DayZObfuscatorModel.PBO.Config;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Diagnostics;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DayZObfuscatorModel.PBO.Packer
 {
@@ -19,6 +13,17 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 	public class PBOPacker
 	{
+		/// <summary>
+		/// Ordered collection of components which will be used when packing the PBO.
+		/// If a component appears after another in the list, it may overwrite the effects of the first component.
+		/// </summary>
+		public IList<PBOPackerComponent> Components { get; } = new List<PBOPackerComponent>();
+
+		/// <summary>
+		/// If set, overrides the pbo's prefix with the one specified
+		/// </summary>
+		public string? Prefix { get; set; }
+
 		public PBOPackerErrors Pack(PBODescriptor pbo, string outputDirectory)
 		{
 			ArgumentNullException.ThrowIfNull(pbo);
@@ -30,10 +35,8 @@ namespace DayZObfuscatorModel.PBO.Packer
 			PBOConfigClass? modClass = pbo.Config
 										  .Result
 										  .Scopes
-										  .Where(x => x.Identifier == "CfgMods")
-										  .FirstOrDefault()
+										  .FirstOrDefault(x => x.Identifier == "CfgPatches")
 										  ?.Scopes
-										  .Where(x => x.Variables.Any(x => x.Identifier == "type" && x.Value is PBOConfigValueString str && str.Value == "mod"))
 										  .FirstOrDefault();
 
 			if (modClass == null)
@@ -62,6 +65,9 @@ namespace DayZObfuscatorModel.PBO.Packer
 					str.Value = modClass.Identifier;
 			}
 
+			foreach (PBOPackerComponent comp in Components)
+				comp.ResetState();
+
 			PBOWriter writer = new PBOWriter(outputFile);
 
 			//Properties
@@ -76,8 +82,11 @@ namespace DayZObfuscatorModel.PBO.Packer
 				//Dummy
 				Dictionary<string, string> properties = new Dictionary<string, string>()
 				{
-					{ "prefix", modClass.Identifier}
+					{ "prefix", Prefix ?? modClass.Identifier}
 				};
+
+				foreach (PBOPackerComponent comp in Components)
+					comp.SetProperties(properties);
 
 				foreach (var kvp in properties)
 				{
@@ -90,7 +99,8 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 			//Preprocess config
 			{
-
+				foreach (PBOPackerComponent comp in Components)
+					comp.ProcessConfig(pbo.Config.Result);
 			}
 
 			List<PBOFile> fileList = new List<PBOFile>(pbo.Files.Count);
@@ -101,6 +111,10 @@ namespace DayZObfuscatorModel.PBO.Packer
 				{
 					fileList.Add(file);
 					file.FileContent = File.OpenRead(file.AbsolutePath);
+					file.DataSize = file.OriginalSize = (uint)file.FileContent.Length;
+
+					foreach (PBOPackerComponent comp in Components)
+						comp.ProcessFile(file);
 				}
 			}
 
@@ -159,6 +173,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 			writer.Flush();			
 
+			//Write hashsum
 			outputFile.Seek(0, SeekOrigin.Begin);
 			using SHA1 sha1 = SHA1.Create();
 			byte[] hash = sha1.ComputeHash(outputFile);

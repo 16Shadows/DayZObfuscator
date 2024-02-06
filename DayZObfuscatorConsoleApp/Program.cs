@@ -46,6 +46,12 @@ namespace DayZObfuscatorConsoleApp
 		{
 			[Option('o', "output", Default = "", HelpText = "Path to output directory", MetaValue = "path", Required = false)]
 			public string OutputDirectory { get; set; }
+			
+			[Option('w', "warn", Default = false, HelpText = "All errors which can be recovered from will be treated as warnings", Required = false)]
+			public bool ErrorsAsWarnings { get; set; }
+
+			[Option('p', "prefix", Default = null, HelpText = "Overrides pbo's prefix. If multiple pbos are to be packed, their prefixes will be overriden.", Required = false)]
+			public string? Prefix { get; set; }
 		}
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -181,12 +187,13 @@ namespace DayZObfuscatorConsoleApp
 			PBOPacker packer = new PBOPacker();
 
 			//Configure packer here
+			packer.Prefix = args.Prefix;
 
 			if (args.Recursive)
 			{
 				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
 				foreach (var descriptor in descriptors)
-					packer.Pack(descriptor, args.OutputDirectory);
+					BuildPBO(descriptor, packer, args);
 			}
 			else
 			{
@@ -197,8 +204,28 @@ namespace DayZObfuscatorConsoleApp
 					return;
 				}
 
-				packer.Pack(descriptor, args.OutputDirectory);
+				BuildPBO(descriptor, packer, args);
 			}
+		}
+
+		static void BuildPBO(PBODescriptor descriptor, PBOPacker packer, BuildArgs args)
+		{
+			if (descriptor.Config.Errors.Any())
+			{
+				Console.WriteLine("Errors in config.cpp:");
+				foreach (var error in descriptor.Config.Errors)
+					Console.WriteLine(FormatConfigError(error));
+
+				if (!args.ErrorsAsWarnings)
+				{
+					Console.WriteLine("Aborting packing...");
+					return;
+				}
+				else
+					Console.WriteLine("-warn is set, ignoring config errors");
+			}
+
+			packer.Pack(descriptor, args.OutputDirectory);
 		}
 	}
 }

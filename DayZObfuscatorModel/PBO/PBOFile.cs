@@ -14,6 +14,9 @@ namespace DayZObfuscatorModel.PBO
 
 
 		private string _Filename;
+		/// <summary>
+		/// The name if the file within the PBO.
+		/// </summary>
 		public string Filename
 		{
 			get => _Filename;
@@ -25,6 +28,9 @@ namespace DayZObfuscatorModel.PBO
 		}
 
 		private string _PathInPBO;
+		/// <summary>
+		/// Path to the file within the PBO.
+		/// </summary>
 		public string PathInPBO
 		{
 			get => _PathInPBO;
@@ -35,8 +41,15 @@ namespace DayZObfuscatorModel.PBO
 			}
 		}
 
+		/// <summary>
+		/// Full path the the file within the PBO, as it will be written into the header.
+		/// Composed of <see cref="PathInPBO"/> and <see cref="Filename"/>.
+		/// </summary>
 		public string FullPathInPBO => Path.Combine(PathInPBO, Filename);
 
+		/// <summary>
+		/// Absolute path to the actual file which will be packed into PBO.
+		/// </summary>
 		public string AbsolutePath { get; }
 
 		/// <summary>
@@ -57,7 +70,8 @@ namespace DayZObfuscatorModel.PBO
 		/// </summary>
 		public uint TimeStamp { get; set; }
 		/// <summary>
-		/// Non-packed size of the file.
+		/// Size of the file when it is unpacked.
+		/// It is initially equivalent to the size of the file specified by <see cref="AbsolutePath"/>.
 		/// </summary>
 		public uint DataSize { get; set; }
 		
@@ -67,6 +81,12 @@ namespace DayZObfuscatorModel.PBO
 		/// The value may be null outside of pbo packing.
 		/// </summary>
 		public Stream? FileContent { get; set; }
+
+		/// <summary>
+		/// If this is set to true, the FileContent is assumed to be no longer modifiable.
+		/// For example, it may be caused by compression.
+		/// </summary>
+		public bool FileContentSealed { get; set; }
 
 
 		public PBOFile(string absolutePath, string pboPath)
