@@ -13,6 +13,43 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 	public class PBOPacker
 	{
+		public class InfoProvider
+		{
+			private readonly PBOPacker Packer;
+
+			public InfoProvider(PBOPacker packer)
+			{
+				Packer = packer;
+			}
+
+			/// <summary>
+			/// This property contains the PBO's properties and is only available in <see cref="PBOPackerComponent.ProcessConfig(PBOConfig, InfoProvider)"/> and <see cref="PBOPackerComponent.ProcessFile(PBOFile, InfoProvider)"/>.
+			/// </summary>
+			public IDictionary<string, string>? Properties
+			{
+				get
+				{
+					return Packer.CurrentStep <= PBOPackerStep.Properties ?
+						   null :
+						   Packer.Properties;
+				}
+			}
+
+			/// <summary>
+			/// This property contains the PBO's properties and is only available in <see cref="PBOPackerComponent.ProcessFile(PBOFile, InfoProvider)"/>.
+			/// </summary>
+			public PBOConfig? Config
+			{
+				get
+				{
+					return Packer.CurrentStep <= PBOPackerStep.Config ?
+						   null :
+						   Packer.Config;
+				}
+			}
+		}
+
+
 		/// <summary>
 		/// Ordered collection of components which will be used when packing the PBO.
 		/// If a component appears after another in the list, it may overwrite the effects of the first component.
@@ -24,25 +61,45 @@ namespace DayZObfuscatorModel.PBO.Packer
 		/// </summary>
 		public string? Prefix { get; set; }
 
+
+		//Internal data used by InfoProvider
+		private enum PBOPackerStep
+		{
+			Initialization = 0,
+			Properties = 1,
+			Config = 2,
+			Files = 3,
+			WritingOutput = 4
+		}
+
+		private PBOPackerStep CurrentStep { get; set; }
+		private readonly Dictionary<string, string> Properties = new Dictionary<string, string>();
+		private PBOConfig? Config;
+
 		public PBOPackerErrors Pack(PBODescriptor pbo, string outputDirectory)
 		{
 			ArgumentNullException.ThrowIfNull(pbo);
 			ArgumentNullException.ThrowIfNull(outputDirectory);
 
+			CurrentStep = PBOPackerStep.Initialization;
+
+			Properties.Clear();
+			Config = pbo.Config.Result;			
+
 			outputDirectory = Path.GetFullPath(outputDirectory);
 			Directory.CreateDirectory(outputDirectory);
 
-			PBOConfigClass? modClass = pbo.Config
+			PBOConfigClass? patchesClass = pbo.Config
 										  .Result
 										  .Scopes
 										  .FirstOrDefault(x => x.Identifier == "CfgPatches")
 										  ?.Scopes
 										  .FirstOrDefault();
 
-			if (modClass == null)
+			if (patchesClass == null)
 				return PBOPackerErrors.FailedToFindModClass;
 
-			string outputFileName = $"{outputDirectory}\\{modClass.Identifier}.pbo";
+			string outputFileName = $"{outputDirectory}\\{patchesClass.Identifier}.pbo";
 
 			FileStream outputFile;
 			try
@@ -56,22 +113,37 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 			//Fix possible inconsistencies in config
 			{
-				PBOConfigExpressionVariableAssignment dir = modClass.Variables.First(x => x.Identifier == "dir");
-				if (dir == null)
-					modClass.Expressions.Add(new PBOConfigExpressionVariableAssignment("dir", new PBOConfigValueString(modClass.Identifier)));
-				else if (dir.Value is not PBOConfigValueString str)
-					dir.Value = new PBOConfigValueString(modClass.Identifier);
-				else if (str.Value != modClass.Identifier)
-					str.Value = modClass.Identifier;
+				PBOConfigClass? modClass = pbo.Config
+										  .Result
+										  .Scopes
+										  .FirstOrDefault(x => x.Identifier == "CfgMods")
+										  ?.Scopes
+										  .FirstOrDefault(x => 
+											x.Variables
+											.Any(x => x.Identifier == "type" && x.Value.Equals("mod")));
+
+				if (modClass != null)
+				{
+					PBOConfigExpressionVariableAssignment? dir = modClass.Variables.FirstOrDefault(x => x.Identifier == "dir");
+					if (dir == null)
+						modClass.Expressions.Add(new PBOConfigExpressionVariableAssignment("dir", new PBOConfigValueString(modClass.Identifier)));
+					else if (dir.Value is not PBOConfigValueString str)
+						dir.Value = new PBOConfigValueString(modClass.Identifier);
+					else if (str.Value != modClass.Identifier)
+						str.Value = modClass.Identifier;
+				}				
 			}
 
 			foreach (PBOPackerComponent comp in Components)
 				comp.ResetState();
 
 			PBOWriter writer = new PBOWriter(outputFile);
+			InfoProvider provider = new InfoProvider(this);
 
 			//Properties
 			{
+				CurrentStep = PBOPackerStep.Properties;
+
 				writer.Write('\0');
 				writer.Write(PBOFile.MimeTypes.Properties);
 				writer.Write(0u);
@@ -79,16 +151,12 @@ namespace DayZObfuscatorModel.PBO.Packer
 				writer.Write(0u);
 				writer.Write(0u);
 
-				//Dummy
-				Dictionary<string, string> properties = new Dictionary<string, string>()
-				{
-					{ "prefix", Prefix ?? modClass.Identifier}
-				};
+				Properties.Add("prefix", Prefix ?? patchesClass.Identifier);
 
 				foreach (PBOPackerComponent comp in Components)
-					comp.SetProperties(properties);
+					comp.SetProperties(Properties);
 
-				foreach (var kvp in properties)
+				foreach (var kvp in Properties)
 				{
 					writer.Write(kvp.Key);
 					writer.Write(kvp.Value);
@@ -99,14 +167,18 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 			//Preprocess config
 			{
+				CurrentStep = PBOPackerStep.Config;
 				foreach (PBOPackerComponent comp in Components)
-					comp.ProcessConfig(pbo.Config.Result);
+					comp.ProcessConfig(pbo.Config.Result, provider);
 			}
+
+			byte[] configData = Encoding.UTF8.GetBytes(pbo.Config.Result.ToString());
 
 			List<PBOFile> fileList = new List<PBOFile>(pbo.Files.Count);
 
 			//Preprocess files
 			{
+				CurrentStep = PBOPackerStep.Files;
 				foreach (PBOFile file in pbo.Files)
 				{
 					fileList.Add(file);
@@ -114,11 +186,11 @@ namespace DayZObfuscatorModel.PBO.Packer
 					file.DataSize = file.OriginalSize = (uint)file.FileContent.Length;
 
 					foreach (PBOPackerComponent comp in Components)
-						comp.ProcessFile(file);
+						comp.ProcessFile(file, provider);
 				}
 			}
 
-			byte[] configData = Encoding.UTF8.GetBytes(pbo.Config.Result.ToString());
+			CurrentStep = PBOPackerStep.WritingOutput;
 
 			//Write config header
 			{

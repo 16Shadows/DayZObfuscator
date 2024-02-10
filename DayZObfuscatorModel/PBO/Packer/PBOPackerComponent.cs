@@ -1,9 +1,4 @@
 ﻿using DayZObfuscatorModel.PBO.Config;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DayZObfuscatorModel.PBO.Packer
 {
@@ -26,12 +21,20 @@ namespace DayZObfuscatorModel.PBO.Packer
 		/// Applies changes to PBO's config
 		/// </summary>
 		/// <param name="config">The config to modify.</param>
-		public abstract void ProcessConfig(PBOConfig config);
+		/// <param name="infoProvider">
+		/// A provider which can be used to access finalized data from previous steps (after all components are done).
+		/// Mutating the data won't have any effect on the PBO but may cause issues in other components.
+		/// </param>
+		public abstract void ProcessConfig(PBOConfig config, PBOPacker.InfoProvider infoProvider);
 
 		/// <summary>
 		/// Applies changes to a file
 		/// </summary>
 		/// <param name="file"></param>
-		public abstract void ProcessFile(PBOFile file);
+		/// <param name="infoProvider">
+		/// A provider which can be used to access finalized data from previous steps (after all components are done).
+		/// Mutating the data won't have any effect on the PBO but may cause issues in other components.
+		/// </param>
+		public abstract void ProcessFile(PBOFile file, PBOPacker.InfoProvider infoProvider);
 	}
 }
