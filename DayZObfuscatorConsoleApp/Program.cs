@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using DayZObfuscatorComponents;
 using DayZObfuscatorModel.Analyzers;
 using DayZObfuscatorModel.Parser;
 using DayZObfuscatorModel.PBO;
@@ -188,6 +189,8 @@ namespace DayZObfuscatorConsoleApp
 
 			//Configure packer here
 			packer.Prefix = args.Prefix;
+
+			packer.Components.Add(new PBOScriptFilenameMangler());
 
 			if (args.Recursive)
 			{

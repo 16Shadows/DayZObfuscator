@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DayZObfuscatorComponents\DayZObfuscatorComponents.csproj" />
     <ProjectReference Include="..\DayZObfuscatorModel\DayZObfuscatorModel.csproj" />
   </ItemGroup>
 
