@@ -1,6 +1,6 @@
 ﻿namespace DayZObfuscatorModel.PBO.Config
 {
-	public class PBOConfigValueString
+	public class PBOConfigValueString : IEquatable<PBOConfigValueString>, IEquatable<string>
 	{
 		private string _Value;
 
@@ -18,12 +18,23 @@
 
 		public override bool Equals(object? obj)
 		{
-			return obj is PBOConfigValueString other && Value.Equals(other.Value);
+			return (obj is string str && Equals(str)) ||
+				   (obj is PBOConfigValueString other && Equals(other));
 		}
 
 		public override int GetHashCode()
 		{
 			return HashCode.Combine(Value);
+		}
+
+		public bool Equals(PBOConfigValueString? other)
+		{
+			return Value.Equals(other?.Value);
+		}
+
+		public bool Equals(string? other)
+		{
+			return Value.Equals(other);
 		}
 	}
 }

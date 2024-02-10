@@ -1,6 +1,6 @@
 ﻿namespace DayZObfuscatorModel.PBO.Config
 {
-	public class PBOConfigExpressionVariableAssignment : PBOConfigExpressionBase
+	public class PBOConfigExpressionVariableAssignment : PBOConfigExpressionBase, IEquatable<PBOConfigExpressionVariableAssignment>
 	{
 		private object _Value;
 
@@ -18,12 +18,17 @@
 
 		public override bool Equals(object? obj)
 		{
-			return base.Equals(obj) && obj is PBOConfigExpressionVariableAssignment other && Value.Equals(other.Value);
+			return (obj is PBOConfigExpressionVariableAssignment var && Equals(var));
 		}
 
 		public override int GetHashCode()
 		{
 			return HashCode.Combine(base.GetHashCode(), Value);
+		}
+
+		public bool Equals(PBOConfigExpressionVariableAssignment? other)
+		{
+			return Value.Equals(other?.Value);
 		}
 	}
 }
