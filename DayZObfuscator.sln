@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests_DayZObfuscatorModel",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DayZObfuscatorConsoleApp", "DayZObfuscatorConsoleApp\DayZObfuscatorConsoleApp.csproj", "{17C7686C-FAB4-433D-BEA8-21033B241B69}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DayZObfuscatorComponents", "DayZObfuscatorComponents\DayZObfuscatorComponents.csproj", "{2B2078B0-8444-4E56-B135-2D0E5B852493}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
