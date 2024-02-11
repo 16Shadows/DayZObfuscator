@@ -70,7 +70,7 @@ namespace DayZObfuscatorModel.Analyzers
 				files = files.Where(x => !PathEx.HasAttribute(x, FileAttributes.Hidden));
 
 			foreach (string file in files)
-				yield return new PBOFile(Path.GetFullPath(file), relativePath + (relativePath.Length > 0 ? "/" : "") + Path.GetFileName(file));
+				yield return new PBODriveFile(Path.GetFullPath(file), relativePath + (relativePath.Length > 0 ? "/" : "") + Path.GetFileName(file));
 
 			IEnumerable<string> subdirs = Directory.EnumerateDirectories(path).Where(x => dirFilter?.Contains(x) != true);
 			if (!includeHiddenDirectories)

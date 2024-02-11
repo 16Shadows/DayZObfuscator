@@ -174,14 +174,11 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 			byte[] configData = Encoding.UTF8.GetBytes(pbo.Config.Result.ToString());
 
-			List<PBOFile> fileList = new List<PBOFile>(pbo.Files.Count);
-
 			//Preprocess files
 			{
 				CurrentStep = PBOPackerStep.Files;
-				foreach (PBOFile file in pbo.Files)
+				foreach (PBODriveFile file in pbo.Files.Where(x => x is PBODriveFile).Cast<PBODriveFile>())
 				{
-					fileList.Add(file);
 					file.FileContent = File.OpenRead(file.AbsolutePath);
 					file.DataSize = file.OriginalSize = (uint)file.FileContent.Length;
 				}
@@ -205,7 +202,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 			
 			//Write files headers
 			{
-				foreach (PBOFile file in fileList)
+				foreach (PBOFile file in pbo.Files)
 				{
 					if (file.FileContent == null)
 						continue;
@@ -235,7 +232,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 			//Writes files' contents
 			{
-				foreach (PBOFile file in fileList)
+				foreach (PBOFile file in pbo.Files)
 				{
 					if (file.FileContent == null)
 						continue;

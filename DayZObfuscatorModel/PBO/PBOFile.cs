@@ -48,11 +48,6 @@ namespace DayZObfuscatorModel.PBO
 		public string FullPathInPBO => Path.Combine(PathInPBO, Filename);
 
 		/// <summary>
-		/// Absolute path to the actual file which will be packed into PBO.
-		/// </summary>
-		public string AbsolutePath { get; }
-
-		/// <summary>
 		/// Mime type if this file. Default constants are available in <see cref="MimeTypes"/>.
 		/// </summary>
 		public uint MimeType { get; set; }
@@ -89,31 +84,20 @@ namespace DayZObfuscatorModel.PBO
 		public bool FileContentSealed { get; set; }
 
 
-		public PBOFile(string absolutePath, string pboPath)
+		public PBOFile(string pboPath)
 		{
-			ArgumentNullException.ThrowIfNull(absolutePath, nameof(absolutePath));
 			ArgumentNullException.ThrowIfNull(pboPath, nameof(pboPath));
 
 			_Filename = Path.GetFileName(pboPath);
 
-			if (!Path.IsPathFullyQualified(absolutePath))
-				throw new ArgumentException($"{nameof(absolutePath)} ({absolutePath}) should be a fully qualified path.");
-			else if (Path.IsPathRooted(pboPath) || _Filename == null)
+			if (Path.IsPathRooted(pboPath) || _Filename == null)
 				throw new ArgumentException($"{nameof(pboPath)} ({pboPath}) should be a valid relative non-rooted path to a file.");
 
-			AbsolutePath = absolutePath;
 			_PathInPBO = Path.GetDirectoryName(pboPath) ?? "";
 
 			TimeStamp = 0;
 			Offset = 0;
 			MimeType = MimeTypes.Uncompressed;
-
-			try
-			{
-				FileInfo info = new FileInfo(AbsolutePath);
-				DataSize = OriginalSize = (uint)info.Length;
-			}
-			catch { }
 		}
 	}
 }
