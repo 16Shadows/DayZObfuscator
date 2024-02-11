@@ -28,13 +28,13 @@ namespace DayZObfuscatorModel.PBO.Packer
 		public abstract void ProcessConfig(PBOConfig config, PBOPacker.InfoProvider infoProvider);
 
 		/// <summary>
-		/// Applies changes to a file
+		/// Applies changes to the files in the PBO.
 		/// </summary>
-		/// <param name="file"></param>
+		/// <param name="files">The files in the PBO</param>
 		/// <param name="infoProvider">
 		/// A provider which can be used to access finalized data from previous steps (after all components are done).
 		/// Mutating the data won't have any effect on the PBO but may cause issues in other components.
 		/// </param>
-		public abstract void ProcessFile(PBOFile file, PBOPacker.InfoProvider infoProvider);
+		public abstract void ProcessFiles(IList<PBOFile> files, PBOPacker.InfoProvider infoProvider);
 	}
 }

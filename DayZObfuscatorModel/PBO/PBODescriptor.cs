@@ -6,7 +6,7 @@ namespace DayZObfuscatorModel.PBO
 {
     public class PBODescriptor
 	{
-		public ICollection<PBOFile> Files { get; } = new HashSet<PBOFile>();
+		public IList<PBOFile> Files { get; } = new List<PBOFile>();
 
 		public ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> Config { get; }
 

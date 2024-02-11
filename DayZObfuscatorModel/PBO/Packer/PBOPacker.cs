@@ -184,10 +184,10 @@ namespace DayZObfuscatorModel.PBO.Packer
 					fileList.Add(file);
 					file.FileContent = File.OpenRead(file.AbsolutePath);
 					file.DataSize = file.OriginalSize = (uint)file.FileContent.Length;
-
-					foreach (PBOPackerComponent comp in Components)
-						comp.ProcessFile(file, provider);
 				}
+
+				foreach (PBOPackerComponent comp in Components)
+					comp.ProcessFiles(pbo.Files, provider);
 			}
 
 			CurrentStep = PBOPackerStep.WritingOutput;
