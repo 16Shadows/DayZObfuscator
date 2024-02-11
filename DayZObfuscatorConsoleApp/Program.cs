@@ -142,7 +142,7 @@ namespace DayZObfuscatorConsoleApp
 		static string FormatFileEntry(PBOFile file, bool detailed)
 		{
 			if (detailed)
-				return $"{file.FullPathInPBO} - {file.AbsolutePath} - {file.DataSize}";
+				return $"{file.FullPathInPBO} - {(file is PBODriveFile dFile ? dFile.AbsolutePath : "")} - {file.DataSize}";
 			else
 				return file.FullPathInPBO;
 		}
