@@ -191,6 +191,7 @@ namespace DayZObfuscatorConsoleApp
 			packer.Prefix = args.Prefix;
 
 			packer.Components.Add(new PBOScriptFilenameMangler());
+			packer.Components.Add(new PBOJunkFilesInjector());
 
 			if (args.Recursive)
 			{
