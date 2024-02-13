@@ -66,7 +66,6 @@ namespace DayZObfuscatorModel.PBO
 		public uint TimeStamp { get; set; }
 		/// <summary>
 		/// Size of the file when it is unpacked.
-		/// It is initially equivalent to the size of the file specified by <see cref="AbsolutePath"/>.
 		/// </summary>
 		public uint DataSize { get; set; }
 		
