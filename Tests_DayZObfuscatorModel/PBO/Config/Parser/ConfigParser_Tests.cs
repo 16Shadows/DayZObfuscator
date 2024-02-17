@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DayZObfuscatorModel.Parser;
 using DayZObfuscatorModel.PBO.Config.Parser.Lexer;
+using CSToolbox.Extensions;
 
 namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 {

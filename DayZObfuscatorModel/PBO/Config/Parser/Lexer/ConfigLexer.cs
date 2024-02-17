@@ -1,6 +1,7 @@
 ﻿using DayZObfuscatorModel.Parser;
 using System.Globalization;
 using System.Text;
+using CSToolbox.Collection;
 
 namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
 {

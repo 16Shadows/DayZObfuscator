@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\CSToolbox\CSToolbox\CSToolbox.csproj" />
-    <ProjectReference Include="..\SimpleParser\SimpleParser.csproj" />
   </ItemGroup>
 
 </Project>

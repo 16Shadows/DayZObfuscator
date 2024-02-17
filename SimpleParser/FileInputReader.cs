@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CSToolbox.Collection;
 
 namespace DayZObfuscatorModel.Parser
 {
-	public class FileInputReader : IInputReader
+    public class FileInputReader : IInputReader
 	{
 		protected readonly DynamicRingBuffer<char> _InputBuffer;
 		protected readonly StreamReader _InputStream;

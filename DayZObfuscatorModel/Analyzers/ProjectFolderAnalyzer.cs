@@ -2,7 +2,7 @@
 using DayZObfuscatorModel.PBO;
 using DayZObfuscatorModel.PBO.Config.Parser;
 using DayZObfuscatorModel.PBO.Config.Parser.Lexer;
-using System.IO;
+using CSToolbox.IO;
 
 namespace DayZObfuscatorModel.Analyzers
 {

@@ -1,4 +1,6 @@
-﻿namespace DayZObfuscatorModel.PBO.Config
+﻿using CSToolbox.Extensions;
+
+namespace DayZObfuscatorModel.PBO.Config
 {
 	public class PBOConfigArrayExpressionSubtract : PBOConfigArrayExpressionBase
 	{

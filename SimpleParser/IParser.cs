@@ -1,6 +1,4 @@
-﻿using DayZObfuscatorModel.PBO.Config.Parser.Lexer;
-
-namespace DayZObfuscatorModel.Parser
+﻿namespace DayZObfuscatorModel.Parser
 {
 	/// <summary>
 	/// An interface describing a parser.
