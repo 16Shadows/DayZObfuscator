@@ -1,12 +1,11 @@
 ﻿using CommandLine;
 using DayZObfuscatorComponents;
+using CSToolbox.Logger;
 using DayZObfuscatorModel.Analyzers;
 using DayZObfuscatorModel.Parser;
 using DayZObfuscatorModel.PBO;
 using DayZObfuscatorModel.PBO.Config.Parser;
-using DayZObfuscatorModel.PBO.Config.Parser.Lexer;
 using DayZObfuscatorModel.PBO.Packer;
-using System.Net.Http.Headers;
 
 namespace DayZObfuscatorConsoleApp
 {
@@ -27,6 +26,12 @@ namespace DayZObfuscatorConsoleApp
 
 			[Option("hidden-dirs", Default = false, HelpText = "If this flag is set, hidden files will be included in the PBO", Required = false)]
 			public bool IncludeHiddenDirectories { get; set; }
+
+			[Option('c', "config", Default = null, HelpText = "Specifies path to the module configuration which allows loading extra PBOPackerComponents and configuring them.", Required = false)]
+			public string? ModuleConfigurationPath { get; set; }
+
+			[Option('l', "log", Default = null, HelpText = "Specifies path to a file into which logs will be written. If no file is specified, logs will be written to console window instead.", Required = false)]
+			public string? LogPath { get; set; }
 		}
 
 		[Verb("analyze", HelpText = "Detect all possible PBOs in the target folder")]
@@ -58,78 +63,113 @@ namespace DayZObfuscatorConsoleApp
 
 		static void Main(string[] args)
 		{
+			Program prog = new Program();
+
 			Parser.Default.ParseArguments<AnalyzeArgs, BuildArgs>(args)
-				.WithParsed<AnalyzeArgs>(Analyze)
-				.WithParsed<BuildArgs>(Build);
+				.WithParsed<AnalyzeArgs>(prog.Analyze)
+				.WithParsed<BuildArgs>(prog.Build);
 		}
 
-		static void Analyze(AnalyzeArgs args)
+		private AnalyzeArgs? AnalyzerArgs => BaseArgs as AnalyzeArgs;
+		private BuildArgs? BuilderArgs => BaseArgs as BuildArgs;
+		private BaseArguments? BaseArgs { get; set; }
+		private LoggerBase? Logger { get; set; }
+		private readonly List<PBOPackerComponent> Components = new List<PBOPackerComponent>();
+
+		void Initialize(BaseArguments args)
 		{
 			ArgumentNullException.ThrowIfNull(args);
-			ArgumentNullException.ThrowIfNull(args.TargetDirectory);
+			BaseArgs = args;
 
-			if (!Directory.Exists(args.TargetDirectory))
+			Logger = BaseArgs.LogPath == null ? new ConsoleLogger() : new FileLogger(BaseArgs.LogPath);
+
+			if (BaseArgs.ModuleConfigurationPath != null)
 			{
-				Console.WriteLine($"'{args.TargetDirectory}' is not a valid directory.");
+				if (File.Exists(BaseArgs.ModuleConfigurationPath))
+				{
+
+				}
+				else
+					Logger.WriteLine($"Specified module configuration ({BaseArgs.ModuleConfigurationPath}) doesn't exist!");
+			}
+		}
+
+		void Dispose()
+		{
+			Logger?.Dispose();
+			Components.Clear();
+			BaseArgs = null;
+		}
+
+		void Analyze(AnalyzeArgs args)
+		{
+			Initialize(args);
+			ArgumentNullException.ThrowIfNull(AnalyzerArgs);
+			ArgumentNullException.ThrowIfNull(AnalyzerArgs.TargetDirectory);
+			
+			if (!Directory.Exists(AnalyzerArgs.TargetDirectory))
+			{
+				Logger?.WriteLine($"'{AnalyzerArgs.TargetDirectory}' is not a valid directory.");
 				return;
 			}
 
-			if (args.Recursive)
+			if (AnalyzerArgs.Recursive)
 			{
-				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
+				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(AnalyzerArgs.TargetDirectory, AnalyzerArgs.IncludeHiddenDirectories, AnalyzerArgs.IncludeHiddenFiles);
 				foreach (var descriptor in descriptors)
 				{
-					OutputPBOInfo(descriptor, args);
-					Console.WriteLine("-------");
+					OutputPBOInfo(descriptor);
+					Logger?.WriteLine("-------");
 				}
 			}
 			else
 			{
-				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
+				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(AnalyzerArgs.TargetDirectory, AnalyzerArgs.IncludeHiddenDirectories, AnalyzerArgs.IncludeHiddenFiles);
 				if (descriptor == null)
 				{
-					Console.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
+					Logger?.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
 					return;
 				}
 
-				OutputPBOInfo(descriptor, args);
+				OutputPBOInfo(descriptor);
 			}
+			Dispose();
 		}
 
-		static void OutputPBOInfo(PBODescriptor descriptor, AnalyzeArgs args)
+		void OutputPBOInfo(PBODescriptor descriptor)
 		{
+			ArgumentNullException.ThrowIfNull(AnalyzerArgs);
 			ArgumentNullException.ThrowIfNull(descriptor);
-			ArgumentNullException.ThrowIfNull(args);
 
-			Console.WriteLine($"Found PBO located in: {descriptor.DirectoryPath}");
+			Logger?.WriteLine($"Found PBO located in: {descriptor.DirectoryPath}");
 			
-			if (args.DetectConfigErrors)
+			if (AnalyzerArgs.DetectConfigErrors)
 			{
-				Console.WriteLine();
+				Logger?.WriteLine();
 				if (descriptor.Config.Success)
-					Console.WriteLine("No errors were detected in the config file.");
+					Logger?.WriteLine("No errors were detected in the config file.");
 				else
 				{
-					Console.WriteLine("Errors in config.cpp:");
+					Logger?.WriteLine("Errors in config.cpp:");
 					foreach (var error in descriptor.Config.Errors)
-						Console.WriteLine(FormatConfigError(error));
+						Logger?.WriteLine(FormatConfigError(error));
 				}	
 			}
 
-			if (args.OutputFilesList)
+			if (AnalyzerArgs.OutputFilesList)
 			{
-				Console.WriteLine();
-				Console.WriteLine("File list:");
-				if (args.DetailedFileList)
+				Logger?.WriteLine();
+				Logger?.WriteLine("File list:");
+				if (AnalyzerArgs.DetailedFileList)
 				{
-					Console.WriteLine(GetDetailedFileListHeader());
+					Logger?.WriteLine(GetDetailedFileListHeader());
 					foreach (PBOFile file in descriptor.Files)
-						Console.WriteLine(FormatFileEntry(file, true));
+						Logger?.WriteLine(FormatFileEntry(file, true));
 				}
 				else
 				{
 					foreach (PBOFile file in descriptor.Files)
-						Console.WriteLine(FormatFileEntry(file, false));	
+						Logger?.WriteLine(FormatFileEntry(file, false));	
 				}
 			}
 		}
@@ -183,53 +223,59 @@ namespace DayZObfuscatorConsoleApp
 			return $"line {token.Line} at position {(atEndOfToken ? token.IndexOnLine : token.IndexOnLine + token.Token.Length)}";
 		}
 
-		static void Build(BuildArgs args)
+		void Build(BuildArgs args)
 		{
+			Initialize(args);
+			ArgumentNullException.ThrowIfNull(BuilderArgs);
+			ArgumentNullException.ThrowIfNull(BuilderArgs.TargetDirectory);
 			PBOPacker packer = new PBOPacker();
 
 			//Configure packer here
-			packer.Prefix = args.Prefix;
+			packer.Prefix = BuilderArgs.Prefix;
 
 			packer.Components.Add(new PBOScriptFilenameMangler());
 			packer.Components.Add(new PBOJunkFilesInjector());
 
-			if (args.Recursive)
+			if (BuilderArgs.Recursive)
 			{
-				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
+				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(BuilderArgs.TargetDirectory, BuilderArgs.IncludeHiddenDirectories, BuilderArgs.IncludeHiddenFiles);
 				foreach (var descriptor in descriptors)
-					BuildPBO(descriptor, packer, args);
+					BuildPBO(descriptor, packer);
 			}
 			else
 			{
-				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(args.TargetDirectory, args.IncludeHiddenDirectories, args.IncludeHiddenFiles);
+				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(BuilderArgs.TargetDirectory, BuilderArgs.IncludeHiddenDirectories, BuilderArgs.IncludeHiddenFiles);
 				if (descriptor == null)
 				{
-					Console.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
+					Logger?.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
 					return;
 				}
 
-				BuildPBO(descriptor, packer, args);
+				BuildPBO(descriptor, packer);
 			}
+			Dispose();
 		}
 
-		static void BuildPBO(PBODescriptor descriptor, PBOPacker packer, BuildArgs args)
+		void BuildPBO(PBODescriptor descriptor, PBOPacker packer)
 		{
+			ArgumentNullException.ThrowIfNull(BuilderArgs);
+
 			if (descriptor.Config.Errors.Any())
 			{
-				Console.WriteLine("Errors in config.cpp:");
+				Logger?.WriteLine("Errors in config.cpp:");
 				foreach (var error in descriptor.Config.Errors)
-					Console.WriteLine(FormatConfigError(error));
+					Logger?.WriteLine(FormatConfigError(error));
 
-				if (!args.ErrorsAsWarnings)
+				if (!BuilderArgs.ErrorsAsWarnings)
 				{
-					Console.WriteLine("Aborting packing...");
+					Logger?.WriteLine("Aborting packing...");
 					return;
 				}
 				else
-					Console.WriteLine("-warn is set, ignoring config errors");
+					Logger?.WriteLine("-warn is set, ignoring config errors");
 			}
 
-			packer.Pack(descriptor, args.OutputDirectory);
+			packer.Pack(descriptor, BuilderArgs.OutputDirectory);
 		}
 	}
 }
