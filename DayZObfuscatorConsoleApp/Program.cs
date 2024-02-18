@@ -1,11 +1,13 @@
 ﻿using CommandLine;
-using DayZObfuscatorComponents;
 using CSToolbox.Logger;
 using DayZObfuscatorModel.Analyzers;
 using DayZObfuscatorModel.Parser;
 using DayZObfuscatorModel.PBO;
 using DayZObfuscatorModel.PBO.Config.Parser;
 using DayZObfuscatorModel.PBO.Packer;
+using Newtonsoft.Json;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DayZObfuscatorConsoleApp
 {
@@ -27,7 +29,7 @@ namespace DayZObfuscatorConsoleApp
 			[Option("hidden-dirs", Default = false, HelpText = "If this flag is set, hidden files will be included in the PBO", Required = false)]
 			public bool IncludeHiddenDirectories { get; set; }
 
-			[Option('c', "config", Default = null, HelpText = "Specifies path to the module configuration which allows loading extra PBOPackerComponents and configuring them.", Required = false)]
+			[Option('m', "modules", Default = null, HelpText = "Specifies path to the module configuration which allows loading extra PBOPackerComponents and configuring them.", Required = false)]
 			public string? ModuleConfigurationPath { get; set; }
 
 			[Option('l', "log", Default = null, HelpText = "Specifies path to a file into which logs will be written. If no file is specified, logs will be written to console window instead.", Required = false)]
@@ -75,6 +77,8 @@ namespace DayZObfuscatorConsoleApp
 		private BaseArguments? BaseArgs { get; set; }
 		private LoggerBase? Logger { get; set; }
 		private readonly List<PBOPackerComponent> Components = new List<PBOPackerComponent>();
+		private static readonly Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
+
 
 		void Initialize(BaseArguments args)
 		{
@@ -87,10 +91,81 @@ namespace DayZObfuscatorConsoleApp
 			{
 				if (File.Exists(BaseArgs.ModuleConfigurationPath))
 				{
-
+					using StreamReader reader = File.OpenText(BaseArgs.ModuleConfigurationPath);
+					using JsonReader jReader = new JsonTextReader(reader);
+					JsonSerializer serializer = new JsonSerializer()
+					{
+						MissingMemberHandling = MissingMemberHandling.Error
+					};
+	
+					try
+					{
+						var moduleConfig = serializer.Deserialize<ModuleConfigurationFile>(jReader);
+						if (moduleConfig != null)
+							LoadModules(moduleConfig);
+						else
+							Logger.WriteLine($"Failed to load module configuration file ({BaseArgs.ModuleConfigurationPath}). It may be empty.");
+					}
+					catch (Exception e)
+					{
+						Logger.WriteLine($"Failed to load module configuration file ({BaseArgs.ModuleConfigurationPath}).\nError: {e}.");
+					}
 				}
 				else
 					Logger.WriteLine($"Specified module configuration ({BaseArgs.ModuleConfigurationPath}) doesn't exist!");
+			}
+		}
+
+		private static readonly Type[] PropertiesConstructorTypes = new Type[] { typeof(PBOPackerComponentProperties) };
+		void LoadModules(ModuleConfigurationFile modules)
+		{
+			ArgumentNullException.ThrowIfNull(modules);
+
+			Assembly? assembly;
+			foreach (ModuleConfiguration module in modules.Modules)
+			{
+				try
+				{
+					string fullPath = Path.GetFullPath(module.AssemblyPath);
+					if (!File.Exists(fullPath))
+					{
+						Logger?.WriteLine($"Failed to find assembly '{module.AssemblyPath}' for module {module.ModuleName}.");
+						continue;
+					}
+					else if (!LoadedAssemblies.TryGetValue(fullPath, out assembly))
+						LoadedAssemblies.Add(fullPath, assembly = Assembly.LoadFrom(fullPath));
+				
+					Type? type = assembly.ExportedTypes.FirstOrDefault(x => x.Name == module.ModuleName && x.IsAssignableTo(typeof(PBOPackerComponent)));
+					if (type == null)
+					{
+						Logger?.WriteLine($"Failed to find assembly type {module.ModuleName} derived from {typeof(PBOPackerComponent)} in assembly '{module.AssemblyPath}'.");
+						continue;
+					}
+
+					//Try to find a constructor which accepts properties
+					ConstructorInfo? constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, PropertiesConstructorTypes);
+
+					if (constructor != null)
+					{
+						Components.Add((PBOPackerComponent)constructor.Invoke(new object?[] { module.Properties }));
+						continue;
+					}
+
+					//Fall back to default constructor
+					constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.EmptyTypes);
+
+					if (constructor != null)
+					{
+						Components.Add((PBOPackerComponent)constructor.Invoke(null));
+						continue;
+					}
+
+					Logger?.WriteLine($"Failed to a find valid constructor (default or accepting {typeof(PBOPackerComponentProperties).Name}) for type {module.ModuleName} from assembly '{module.AssemblyPath}'.");
+				}
+				catch (Exception ex)
+				{
+					Logger?.WriteLine($"Failed to load module {module.ModuleName} from assembly '{module.AssemblyPath}'.\nError: {ex}");
+				}
 			}
 		}
 
@@ -233,8 +308,8 @@ namespace DayZObfuscatorConsoleApp
 			//Configure packer here
 			packer.Prefix = BuilderArgs.Prefix;
 
-			packer.Components.Add(new PBOScriptFilenameMangler());
-			packer.Components.Add(new PBOJunkFilesInjector());
+			foreach (PBOPackerComponent comp in Components)
+				packer.Components.Add(comp);
 
 			if (BuilderArgs.Recursive)
 			{
