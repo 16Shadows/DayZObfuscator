@@ -6,6 +6,7 @@ using DayZObfuscatorModel.PBO;
 using DayZObfuscatorModel.PBO.Config.Parser;
 using DayZObfuscatorModel.PBO.Packer;
 using Newtonsoft.Json;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -116,7 +117,7 @@ namespace DayZObfuscatorConsoleApp
 			}
 		}
 
-		private static readonly Type[] PropertiesConstructorTypes = new Type[] { typeof(PBOPackerComponentProperties) };
+		private static readonly Type[] RawPropertiesConstructorTypes = new Type[] { typeof(Dictionary<string, object>) };
 		void LoadModules(ModuleConfigurationFile modules)
 		{
 			ArgumentNullException.ThrowIfNull(modules);
@@ -142,8 +143,32 @@ namespace DayZObfuscatorConsoleApp
 						continue;
 					}
 
-					//Try to find a constructor which accepts properties
-					ConstructorInfo? constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, PropertiesConstructorTypes);
+					//Check if the type has a nested type called 'Propertes' (by-convention initialization)
+					Type? propsType = type.GetNestedType("Properties", BindingFlags.Public);
+					ConstructorInfo? constructor;
+					if (propsType != null)
+					{
+						//Check if it also has a constructor which accepts such type
+						constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public, new Type[] { propsType });
+						if (constructor != null)
+						{
+							try
+							{
+								object? propsInstance = Activator.CreateInstance(propsType, false);
+
+								if (propsInstance != null && module.Properties != null)
+								{
+									PopulateTypeFromDictionary(propsInstance, module.Properties);
+									Components.Add((PBOPackerComponent)constructor.Invoke(new object?[] { propsInstance }));
+									continue;
+								}
+							}
+							catch { /*Just fall back to other options.*/ }
+						}
+					}
+
+					//Try to fall back to passing plain dictionary
+					constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public, RawPropertiesConstructorTypes);
 
 					if (constructor != null)
 					{
@@ -152,20 +177,42 @@ namespace DayZObfuscatorConsoleApp
 					}
 
 					//Fall back to default constructor
-					constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.EmptyTypes);
+					constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public, Type.EmptyTypes);
 
 					if (constructor != null)
 					{
 						Components.Add((PBOPackerComponent)constructor.Invoke(null));
 						continue;
 					}
+					
 
-					Logger?.WriteLine($"Failed to a find valid constructor (default or accepting {typeof(PBOPackerComponentProperties).Name}) for type {module.ModuleName} from assembly '{module.AssemblyPath}'.");
+					Logger?.WriteLine($"Failed to a find valid constructor (default, accepting {typeof(Dictionary<string, object>).Name} or defining nested type 'Properties' and accepting it) for type {module.ModuleName} from assembly '{module.AssemblyPath}'.");
 				}
 				catch (Exception ex)
 				{
 					Logger?.WriteLine($"Failed to load module {module.ModuleName} from assembly '{module.AssemblyPath}'.\nError: {ex}");
 				}
+			}
+		}
+
+		private static void PopulateTypeFromDictionary(object instance, Dictionary<string, object> values)
+		{
+			ArgumentNullException.ThrowIfNull(instance);
+			ArgumentNullException.ThrowIfNull(values);
+
+			Type t = instance.GetType();
+
+			PropertyInfo? propInfo;
+			foreach (KeyValuePair<string, object> prop in values)
+			{
+				propInfo = t.GetProperty(prop.Key, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+				if (propInfo == null || !propInfo.CanWrite)
+					continue;
+				try
+				{
+					propInfo.SetValue(instance, Convert.ChangeType(prop.Value, propInfo.PropertyType));
+				}
+				catch { /*Can't set this property, move on*/ }
 			}
 		}
 
