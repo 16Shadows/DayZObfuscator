@@ -124,10 +124,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				case ConfigParserErrors.ExpectedCommaOrRightCurlyBracket:
 					{
 						ConfigToken nextToken;
-						if (state.CurrentTokenConsumed)
-							nextToken = lexer.Peek();
-						else
-							nextToken = lexer.Peek(2).First();
+						nextToken = lexer.Peek(2).First();
 
 						if (nextToken.TokenType == ConfigToken.ConfigTokenType.Number || nextToken.TokenType == ConfigToken.ConfigTokenType.String || nextToken.TokenType == ConfigToken.ConfigTokenType.BrokenString)
 							return lexer.Prepend(new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Comma, ",", 0, 0, 0));
@@ -146,10 +143,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			{
 				IEnumerable<ConfigToken> tokens = state.ConsumedTokens;
 
-				if (!state.CurrentTokenConsumed)
-					lexer.Consume();
-				else
-					tokens = tokens.SkipLast(1);
+				lexer.Consume();
 
 				var correctedString = new ConfigToken(ConfigToken.ConfigTokenType.String, state.CurrentToken.Token + '\"', state.CurrentToken.Index, state.CurrentToken.Line, state.CurrentToken.IndexOnLine);
 				tokens = tokens.Append(correctedString);
@@ -159,10 +153,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			{
 				IEnumerable<ConfigToken> tokens = state.ConsumedTokens;
 
-				if (!state.CurrentTokenConsumed)
-					lexer.Consume();
-				else
-					tokens = tokens.SkipLast(1);
+				lexer.Consume();
 
 				var correctedNumber = new ConfigToken(ConfigToken.ConfigTokenType.Number, "0", state.CurrentToken.Index, state.CurrentToken.Line, state.CurrentToken.IndexOnLine);
 				tokens = tokens.Append(correctedNumber);
@@ -213,10 +204,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			IEnumerable<ConfigToken> tokens = state.ConsumedTokens;
 			var newLexer = lexer.AsPreview();
 
-			if (state.CurrentTokenConsumed)
-				tokens = tokens.SkipLast(1);
-			else
-				newLexer.Consume();
+			newLexer.Consume();
 
 			return newLexer.Prepend(tokens);
 		}
@@ -226,10 +214,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			IEnumerable<ConfigToken> tokens = state.ConsumedTokens;
 			var newLexer = lexer.AsPreview();
 
-			if (state.CurrentTokenConsumed)
-				tokens = tokens.SkipLast(1);
-			else
-				newLexer.Consume();
+			newLexer.Consume();
 
 			return newLexer.Prepend(replacementToken).Prepend(tokens);
 		}
@@ -238,12 +223,6 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 		{
 			IEnumerable<ConfigToken> tokens = state.ConsumedTokens;
 			var newLexer = lexer.AsPreview();
-
-			if (state.CurrentTokenConsumed)
-			{
-				tokens = tokens.SkipLast(1);
-				newLexer = newLexer.Prepend(state.CurrentToken);
-			}
 
 			return newLexer.Prepend(injectedToken).Prepend(tokens);
 		}

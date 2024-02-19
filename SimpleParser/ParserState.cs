@@ -28,31 +28,27 @@ namespace DayZObfuscatorModel.Parser
 		/// </summary>
 		public LexerToken CurrentToken { get; }
 
-		public bool CurrentTokenConsumed { get; }
-
 		/// <summary>
 		/// Creates an instance of ParserState
 		/// </summary>
 		/// <param name="currentState">The state the parser is in.</param>
 		/// <param name="currentToken">The token the parser is currently examining</param>
-		/// <param name="currentTokenConsumed">If true, <paramref name="currentToken"/> has been consumed while being examined and is included in <paramref name="consumedTokens"/>. If false, the token has only been peeked.</param>
 		/// <param name="consumedTokens">A set of tokens already consumed by the parser's state. If the parser's state were to received these tokens, it would end up in this same state.</param>
 		/// <exception cref="ArgumentNullException"></exception>
-		public ParserState(ParserStates currentState, LexerToken currentToken, bool currentTokenConsumed, IEnumerable<LexerToken> consumedTokens)
+		public ParserState(ParserStates currentState, LexerToken currentToken, IEnumerable<LexerToken> consumedTokens)
 		{
 			CurrentState = currentState;
 			ConsumedTokens = consumedTokens ?? throw new ArgumentNullException(nameof(consumedTokens));
 			CurrentToken = currentToken ?? throw new ArgumentNullException(nameof(currentToken));
-			CurrentTokenConsumed = currentTokenConsumed;
 		}
 
-		public ParserState(ParserStates currentState, LexerToken currentToken, bool currentTokenConsumed, params LexerToken[] consumedTokens) : this(currentState, currentToken, currentTokenConsumed, (IEnumerable<LexerToken>)consumedTokens) {}
+		public ParserState(ParserStates currentState, LexerToken currentToken, params LexerToken[] consumedTokens) : this(currentState, currentToken, (IEnumerable<LexerToken>)consumedTokens) {}
 
 		/// <summary>
 		/// Create a parser state with only a single token peeked
 		/// </summary>
 		/// <param name="currentState">The state the parser is in.</param>
 		/// <param name="currentToken">The token the parser is currently examining</param>
-		public ParserState(ParserStates currentState, LexerToken currentToken) : this(currentState, currentToken, false, Enumerable.Empty<LexerToken>()) { }
+		public ParserState(ParserStates currentState, LexerToken currentToken) : this(currentState, currentToken, Enumerable.Empty<LexerToken>()) { }
 	}
 }

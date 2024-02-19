@@ -47,7 +47,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 			Assert.AreEqual(5, config.Scopes.First().Expressions.Count);
 			Assert.AreEqual(1, config.Scopes.First().Variables.Count());
 			Assert.AreEqual(3, config.Scopes.First().Arrays.Count());
-			Assert.AreEqual(1, config.Scopes.First().Scopes.Count());
+			Assert.AreEqual(1, config.Scopes.First().Classes.Count());
 
 			Assert.AreEqual("str", config.Scopes.First().Variables.First().Identifier);
 			Assert.AreEqual(new PBOConfigValueString("test text"), config.Scopes.First().Variables.First().Value);
@@ -61,15 +61,15 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 
 			Assert.IsTrue(arrays.SequenceEqualsOrderInvariant(config.Scopes.First().Arrays));
 
-			Assert.AreEqual("TestInner", config.Scopes.First().Scopes.First().Identifier);
+			Assert.AreEqual("TestInner", config.Scopes.First().Classes.First().Identifier);
 			
-			Assert.AreEqual(1, config.Scopes.First().Scopes.First().Expressions.Count);
-			Assert.AreEqual(1, config.Scopes.First().Scopes.First().Variables.Count());
-			Assert.AreEqual(0, config.Scopes.First().Scopes.First().Arrays.Count());
-			Assert.AreEqual(0, config.Scopes.First().Scopes.First().Scopes.Count());
+			Assert.AreEqual(1, config.Scopes.First().Classes.First().Expressions.Count);
+			Assert.AreEqual(1, config.Scopes.First().Classes.First().Variables.Count());
+			Assert.AreEqual(0, config.Scopes.First().Classes.First().Arrays.Count());
+			Assert.AreEqual(0, config.Scopes.First().Classes.First().Classes.Count());
 
-			Assert.AreEqual("var", config.Scopes.First().Scopes.First().Variables.First().Identifier);
-			Assert.AreEqual(5, config.Scopes.First().Scopes.First().Variables.First().Value);
+			Assert.AreEqual("var", config.Scopes.First().Classes.First().Variables.First().Identifier);
+			Assert.AreEqual(5, config.Scopes.First().Classes.First().Variables.First().Value);
 		}
 
 		[TestMethod()]

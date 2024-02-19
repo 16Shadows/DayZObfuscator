@@ -93,7 +93,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 										  .Result
 										  .Scopes
 										  .FirstOrDefault(x => x.Identifier == "CfgPatches")
-										  ?.Scopes
+										  ?.Classes
 										  .FirstOrDefault();
 
 			if (patchesClass == null)
@@ -117,7 +117,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 										  .Result
 										  .Scopes
 										  .FirstOrDefault(x => x.Identifier == "CfgMods")
-										  ?.Scopes
+										  ?.Classes
 										  .FirstOrDefault(x => 
 											x.Variables
 											.Any(x => x.Identifier == "type" && x.Value.Equals("mod")));

@@ -9,6 +9,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
 			Unknown,
 
 			Keyword_Class,
+			Keyword_Delete,
 
 			Symbol_CurlyBracketLeft,
 			Symbol_CurlyBracketRight,
@@ -17,6 +18,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
 			Symbol_MinusAssign,
 			Symbol_Comma,
 			Symbol_Semicolumn,
+			Symbol_Column,
 
 			Identifier,
 			String,

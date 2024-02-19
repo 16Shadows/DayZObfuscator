@@ -98,6 +98,12 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
                     _TokenBuffer.Append(_Document.Consume(5));
                     _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Keyword_Class));
                 }
+                else if (_Document.Peek(6) == "delete")
+                {
+                    AdvanceIndex(6);
+                    _TokenBuffer.Append(_Document.Consume(6));
+                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Keyword_Delete));
+                }
                 else if (symbol == '{')
                 {
                     AdvanceIndex();
@@ -133,6 +139,12 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer
                     AdvanceIndex();
                     _TokenBuffer.Append(_Document.Consume());
                     _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_Comma));
+                }
+                else if (symbol == ':')
+                {
+                    AdvanceIndex();
+                    _TokenBuffer.Append(_Document.Consume());
+                    _ParsedTokens.Add(GenerateTokenFromBuffer(ConfigToken.ConfigTokenType.Symbol_Column));
                 }
                 else if (symbol == ';')
                 {

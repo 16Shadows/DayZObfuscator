@@ -7,12 +7,17 @@ namespace DayZObfuscatorModel.PBO.Config
 	{
 		public IList<PBOConfigExpressionBase> Expressions { get; } = new List<PBOConfigExpressionBase>();
 
-		public IEnumerable<PBOConfigClass> Scopes => Expressions.OfType<PBOConfigClass>();
+		public IEnumerable<PBOConfigClass> Classes => Expressions.OfType<PBOConfigClass>();
 		public IEnumerable<PBOConfigExpressionVariableAssignment> Variables => Expressions.OfType<PBOConfigExpressionVariableAssignment>();
 		public IEnumerable<PBOConfigArrayExpressionBase> Arrays => Expressions.OfType<PBOConfigArrayExpressionBase>();
+		public IEnumerable<PBOConfigExpressionDelete> Deletes => Expressions.OfType<PBOConfigExpressionDelete>();
+		public IEnumerable<PBOConfigExternalClass> ExternalClasses => Expressions.OfType<PBOConfigExternalClass>();
 
-		public PBOConfigClass(string identifier) : base(identifier)
+		public string? Parent { get; set; }
+
+		public PBOConfigClass(string identifier, string? parent) : base(identifier)
 		{
+			Parent = parent;
 		}
 
 		public override string ToString()
@@ -30,7 +35,16 @@ namespace DayZObfuscatorModel.PBO.Config
 
 			sb.Append(tabs);
 			sb.Append("class ");
-			sb.AppendLine(Identifier);
+			sb.Append(Identifier);
+
+			if (Parent != null)
+			{
+				sb.Append(" : ");
+				sb.Append(Parent);
+			}
+
+			sb.AppendLine();
+
 			sb.Append(tabs);
 			sb.AppendLine("{");
 			
@@ -58,7 +72,10 @@ namespace DayZObfuscatorModel.PBO.Config
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(base.GetHashCode(), Identifier);
+			int hash = HashCode.Combine(base.GetHashCode(), "class");
+			foreach (var expr in Expressions)
+				hash = HashCode.Combine(hash, expr.GetHashCode());
+			return hash;
 		}
 	}
 }
