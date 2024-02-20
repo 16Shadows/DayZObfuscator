@@ -91,7 +91,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 			PBOConfigClass? patchesClass = pbo.Config
 										  .Result
-										  .Scopes
+										  .Classes
 										  .FirstOrDefault(x => x.Identifier == "CfgPatches")
 										  ?.Classes
 										  .FirstOrDefault();
@@ -115,7 +115,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 			{
 				PBOConfigClass? modClass = pbo.Config
 										  .Result
-										  .Scopes
+										  .Classes
 										  .FirstOrDefault(x => x.Identifier == "CfgMods")
 										  ?.Classes
 										  .FirstOrDefault(x => 

@@ -2,16 +2,13 @@
 {
 	public class PBOConfigExternalClass : PBOConfigExpressionBase
 	{
-		public string? Parent { get; set; }
-
-		public PBOConfigExternalClass(string identifier, string? parent) : base(identifier)
+		public PBOConfigExternalClass(string identifier) : base(identifier)
 		{
-			Parent = parent;
 		}
 
 		public override string ToString()
 		{
-			return Parent == null ? $"class {Identifier};" : $"class {Identifier} : {Parent};";
+			return $"class {Identifier};";
 		}
 
 		public override bool Equals(object? obj)

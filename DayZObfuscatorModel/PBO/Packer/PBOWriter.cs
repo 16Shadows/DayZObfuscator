@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace DayZObfuscatorModel.PBO.Packer
 {
@@ -14,7 +10,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 		override public void Write(string value)
 		{
-			base.Write(Encoding.UTF8.GetBytes(value));
+			base.Write(Encoding.ASCII.GetBytes(value));
 			base.Write((byte)0);
 		}
 

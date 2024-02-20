@@ -39,18 +39,18 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 			Assert.AreEqual(0, result.Errors.Count());
 
 			Assert.IsNotNull(config);
-			Assert.AreEqual(1, config.Scopes.Count());
+			Assert.AreEqual(1, config.Classes.Count());
 
 
-			Assert.AreEqual("Test", config.Scopes.First().Identifier);
+			Assert.AreEqual("Test", config.Classes.First().Identifier);
 			
-			Assert.AreEqual(5, config.Scopes.First().Expressions.Count);
-			Assert.AreEqual(1, config.Scopes.First().Variables.Count());
-			Assert.AreEqual(3, config.Scopes.First().Arrays.Count());
-			Assert.AreEqual(1, config.Scopes.First().Classes.Count());
+			Assert.AreEqual(5, config.Classes.First().Expressions.Count);
+			Assert.AreEqual(1, config.Classes.First().Variables.Count());
+			Assert.AreEqual(3, config.Classes.First().Arrays.Count());
+			Assert.AreEqual(1, config.Classes.First().Classes.Count());
 
-			Assert.AreEqual("str", config.Scopes.First().Variables.First().Identifier);
-			Assert.AreEqual(new PBOConfigValueString("test text"), config.Scopes.First().Variables.First().Value);
+			Assert.AreEqual("str", config.Classes.First().Variables.First().Identifier);
+			Assert.AreEqual(new PBOConfigValueString("test text"), config.Classes.First().Variables.First().Value);
 
 			List<PBOConfigArrayExpressionBase> arrays = new List<PBOConfigArrayExpressionBase>()
 			{
@@ -59,17 +59,17 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 				new PBOConfigArrayExpressionSubtract("arr[]", new List<object>() { 52 })
 			};
 
-			Assert.IsTrue(arrays.SequenceEqualsOrderInvariant(config.Scopes.First().Arrays));
+			Assert.IsTrue(arrays.SequenceEqualsOrderInvariant(config.Classes.First().Arrays));
 
-			Assert.AreEqual("TestInner", config.Scopes.First().Classes.First().Identifier);
+			Assert.AreEqual("TestInner", config.Classes.First().Classes.First().Identifier);
 			
-			Assert.AreEqual(1, config.Scopes.First().Classes.First().Expressions.Count);
-			Assert.AreEqual(1, config.Scopes.First().Classes.First().Variables.Count());
-			Assert.AreEqual(0, config.Scopes.First().Classes.First().Arrays.Count());
-			Assert.AreEqual(0, config.Scopes.First().Classes.First().Classes.Count());
+			Assert.AreEqual(1, config.Classes.First().Classes.First().Expressions.Count);
+			Assert.AreEqual(1, config.Classes.First().Classes.First().Variables.Count());
+			Assert.AreEqual(0, config.Classes.First().Classes.First().Arrays.Count());
+			Assert.AreEqual(0, config.Classes.First().Classes.First().Classes.Count());
 
-			Assert.AreEqual("var", config.Scopes.First().Classes.First().Variables.First().Identifier);
-			Assert.AreEqual(5, config.Scopes.First().Classes.First().Variables.First().Value);
+			Assert.AreEqual("var", config.Classes.First().Classes.First().Variables.First().Identifier);
+			Assert.AreEqual(5, config.Classes.First().Classes.First().Variables.First().Value);
 		}
 
 		[TestMethod()]

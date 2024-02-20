@@ -408,12 +408,10 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				stateTokens.Add(nextToken);
 				parentClass = nextToken.Token;
 			}
-
-			nextToken = lexer.Peek();
-			if (nextToken.TokenType == ConfigToken.ConfigTokenType.Symbol_Semicolumn)
+			else if (nextToken.TokenType == ConfigToken.ConfigTokenType.Symbol_Semicolumn)
 			{
 				nextToken = lexer.Consume();
-				return new ParseResult<PBOConfigExpressionBase, ParserErrorBase<ConfigParserErrors>>( new PBOConfigExternalClass(identifier, parentClass), true, errors );
+				return new ParseResult<PBOConfigExpressionBase, ParserErrorBase<ConfigParserErrors>>( new PBOConfigExternalClass(identifier), true, errors );
 			}
 
 			nextToken = lexer.Peek();

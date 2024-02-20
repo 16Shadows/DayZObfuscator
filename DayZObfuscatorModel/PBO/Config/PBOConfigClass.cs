@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using CSToolbox.Extensions;
+using DayZObfuscatorModel.PBO.Packer;
 
 namespace DayZObfuscatorModel.PBO.Config
 {
@@ -76,6 +77,16 @@ namespace DayZObfuscatorModel.PBO.Config
 			foreach (var expr in Expressions)
 				hash = HashCode.Combine(hash, expr.GetHashCode());
 			return hash;
+		}
+
+		public void Binarize(PBOWriter writer)
+		{
+
+		}
+
+		public int GetBinarizedSize()
+		{
+			return 0;
 		}
 	}
 }
