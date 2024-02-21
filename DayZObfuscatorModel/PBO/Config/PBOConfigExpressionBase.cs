@@ -1,6 +1,8 @@
-﻿namespace DayZObfuscatorModel.PBO.Config
+﻿using DayZObfuscatorModel.PBO.Packer;
+
+namespace DayZObfuscatorModel.PBO.Config
 {
-	public class PBOConfigExpressionBase
+	public abstract class PBOConfigExpressionBase
 	{
 		public string Identifier { get; set; }
 
@@ -18,5 +20,8 @@
 		{
 			return HashCode.Combine(Identifier);
 		}
+
+		public abstract void Binarize(PBOWriter writer);
+		public abstract uint GetBinarizedSize();
 	}
 }

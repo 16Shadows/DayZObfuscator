@@ -6,9 +6,7 @@ using DayZObfuscatorModel.PBO;
 using DayZObfuscatorModel.PBO.Config.Parser;
 using DayZObfuscatorModel.PBO.Packer;
 using Newtonsoft.Json;
-using System.Globalization;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace DayZObfuscatorConsoleApp
 {
@@ -62,7 +60,7 @@ namespace DayZObfuscatorConsoleApp
 			[Option('p', "prefix", Default = null, HelpText = "Overrides pbo's prefix. If multiple pbos are to be packed, their prefixes will be overriden.", Required = false)]
 			public string? Prefix { get; set; }
 
-			[Option('b', "binarize", Default = false,HelpText = "If this flag is set, config.cpp will be binarized.", Required = false)]
+			[Option('b', "binarize", Default = false, HelpText = "If this flag is set, config.cpp will be binarized.", Required = false)]
 			public bool BinarizeConfig { get; set; }
 		}
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -357,6 +355,7 @@ namespace DayZObfuscatorConsoleApp
 
 			//Configure packer here
 			packer.Prefix = BuilderArgs.Prefix;
+			packer.BinarizeConfig = BuilderArgs.BinarizeConfig;
 
 			foreach (PBOPackerComponent comp in Components)
 				packer.Components.Add(comp);

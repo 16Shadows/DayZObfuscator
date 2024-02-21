@@ -54,9 +54,9 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 
 			List<PBOConfigArrayExpressionBase> arrays = new List<PBOConfigArrayExpressionBase>()
 			{
-				new PBOConfigArrayExpressionAssignment("arr[]", new List<object>() { 52 }),
-				new PBOConfigArrayExpressionAdd("arr[]", new List<object>() { 2, 3, 4 }),
-				new PBOConfigArrayExpressionSubtract("arr[]", new List<object>() { 52 })
+				new PBOConfigArrayExpressionAssignment("arr[]", new List<PBOConfigValueBase>() { new PBOConfigValueInt(52) }),
+				new PBOConfigArrayExpressionAdd("arr[]", new List<PBOConfigValueBase>() { new PBOConfigValueInt(2), new PBOConfigValueInt(3), new PBOConfigValueInt(4) }),
+				new PBOConfigArrayExpressionSubtract("arr[]", new List<PBOConfigValueBase>() { new PBOConfigValueInt(52) })
 			};
 
 			Assert.IsTrue(arrays.SequenceEqualsOrderInvariant(config.Classes.First().Arrays));

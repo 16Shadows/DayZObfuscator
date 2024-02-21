@@ -61,6 +61,10 @@ namespace DayZObfuscatorModel.PBO.Packer
 		/// </summary>
 		public string? Prefix { get; set; }
 
+		/// <summary>
+		/// If set, config will be binarized
+		/// </summary>
+		public bool BinarizeConfig { get; set; }
 
 		//Internal data used by InfoProvider
 		private enum PBOPackerStep
@@ -172,7 +176,17 @@ namespace DayZObfuscatorModel.PBO.Packer
 					comp.ProcessConfig(pbo.Config.Result, provider);
 			}
 
-			byte[] configData = Encoding.UTF8.GetBytes(pbo.Config.Result.ToString());
+			byte[] configData;
+			
+			if (BinarizeConfig)
+			{
+				using MemoryStream stream = new MemoryStream();
+				using PBOWriter configWriter = new PBOWriter(stream);
+				pbo.Config.Result.Binarize(configWriter);
+				configData = stream.ToArray();
+			}
+			else
+				configData = Encoding.UTF8.GetBytes(pbo.Config.Result.ToString());
 
 			//Preprocess files
 			{
@@ -191,7 +205,10 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 			//Write config header
 			{
-				writer.Write("config.cpp");
+				if (BinarizeConfig)
+					writer.Write("config.bin");
+				else
+					writer.Write("config.cpp");
 				writer.Write(PBOFile.MimeTypes.Uncompressed);
 				writer.Write(0u);
 				writer.Write(0u);

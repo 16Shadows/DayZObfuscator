@@ -1,23 +1,27 @@
 ﻿using System.Text;
 using CSToolbox.Extensions;
 using DayZObfuscatorModel.PBO.Packer;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace DayZObfuscatorModel.PBO.Config
 {
-	public class PBOConfigClass : PBOConfigExpressionBase
+	public class PBOConfigClass
 	{
 		public IList<PBOConfigExpressionBase> Expressions { get; } = new List<PBOConfigExpressionBase>();
 
-		public IEnumerable<PBOConfigClass> Classes => Expressions.OfType<PBOConfigClass>();
+		public IList<PBOConfigClass> Classes { get; } = new List<PBOConfigClass>();
 		public IEnumerable<PBOConfigExpressionVariableAssignment> Variables => Expressions.OfType<PBOConfigExpressionVariableAssignment>();
 		public IEnumerable<PBOConfigArrayExpressionBase> Arrays => Expressions.OfType<PBOConfigArrayExpressionBase>();
 		public IEnumerable<PBOConfigExpressionDelete> Deletes => Expressions.OfType<PBOConfigExpressionDelete>();
 		public IEnumerable<PBOConfigExternalClass> ExternalClasses => Expressions.OfType<PBOConfigExternalClass>();
 
+
+		public string Identifier { get; set; }
 		public string? Parent { get; set; }
 
-		public PBOConfigClass(string identifier, string? parent) : base(identifier)
+		public PBOConfigClass(string identifier, string? parent)
 		{
+			Identifier = identifier;
 			Parent = parent;
 		}
 
@@ -51,14 +55,12 @@ namespace DayZObfuscatorModel.PBO.Config
 			
 			foreach (PBOConfigExpressionBase expression in Expressions)
 			{
-				if (expression is PBOConfigClass scope)
-					sb.AppendLine(scope.ToString(tabBy+1));
-				else
-				{
-					sb.Append(tabsInner);
-					sb.AppendLine(expression.ToString());
-				}
+				sb.Append(tabsInner);
+				sb.AppendLine(expression.ToString());
 			}
+			
+			foreach (PBOConfigClass pboClass in Classes)
+				sb.AppendLine(pboClass.ToString(tabBy+1));
 
 			sb.Append(tabs);
 			sb.Append("};");
@@ -79,14 +81,67 @@ namespace DayZObfuscatorModel.PBO.Config
 			return hash;
 		}
 
-		public void Binarize(PBOWriter writer)
+		public void BinarizeEntry(PBOWriter writer, uint offset)
 		{
-
+			writer.Write((byte)0);
+			writer.Write(Identifier);
+			writer.Write(offset);
 		}
 
-		public int GetBinarizedSize()
+		public uint GetBinarizedEntrySize()
 		{
-			return 0;
+			return (uint)Identifier.Length + 1 + 1 + 4; //1 for terminator, 1 for entry type, 4 for offset
+		}
+
+		public void BinarizeBody(PBOWriter writer, uint nextEntryOffset)
+		{
+			//Inherited class
+			writer.Write(Parent ?? "");
+			//Number of entries
+			writer.Write((byte)(Expressions.Count + Classes.Count));
+
+			//Write all entries except for classes
+			foreach (PBOConfigExpressionBase expression in Expressions)
+				expression.Binarize(writer);
+
+			Dictionary<PBOConfigClass, uint> offsets = new Dictionary<PBOConfigClass, uint>();
+			uint classOffset = (uint)writer.BaseStream.Position + (uint)Classes.Sum(x => x.GetBinarizedEntrySize()) + 4; //4 for offset to next class entry after entries of this class
+
+			//Write classes' entries
+			foreach (PBOConfigClass pboClass in Classes)
+			{
+				pboClass.BinarizeEntry(writer, classOffset);
+				uint size = pboClass.GetBinarizedBodySize();
+				classOffset += size;
+				offsets.Add(pboClass, size);
+			}
+			
+			//Write offset to next entry
+			writer.Write(nextEntryOffset);
+			
+			classOffset = (uint)writer.BaseStream.Position;
+
+			//Write classes' bodies
+			foreach (PBOConfigClass pboClass in Classes)
+			{
+				classOffset += offsets[pboClass];
+				pboClass.BinarizeBody(writer, classOffset);
+			}
+		}
+
+		public uint GetBinarizedBodySize()
+		{
+			uint size = 1 + 1 + 4; //1 for parent terminator, 1 for number of entries, 4 for next entry offset
+			if (Parent != null)
+				size += (uint)Parent.Length;
+
+			foreach (PBOConfigExpressionBase expr in Expressions)
+				size += expr.GetBinarizedSize();
+
+			foreach (PBOConfigClass pboClass in Classes)
+				size += pboClass.GetBinarizedEntrySize() + pboClass.GetBinarizedBodySize();
+
+			return size;
 		}
 	}
 }

@@ -1,12 +1,12 @@
 ﻿namespace DayZObfuscatorModel.PBO.Config
 {
-	public class PBOConfigArrayExpressionBase : PBOConfigExpressionBase
+	public abstract class PBOConfigArrayExpressionBase : PBOConfigExpressionBase
 	{
-		private IList<object> _Value;
+		private IList<PBOConfigValueBase> _Value;
 
-		public IList<object> Value { get => _Value; set => _Value = value ?? throw new ArgumentNullException(nameof(value)); }
+		public IList<PBOConfigValueBase> Value { get => _Value; set => _Value = value ?? throw new ArgumentNullException(nameof(value)); }
 
-		public PBOConfigArrayExpressionBase(string identifier, IList<object> value) : base(identifier)
+		public PBOConfigArrayExpressionBase(string identifier, IList<PBOConfigValueBase> value) : base(identifier)
 		{
 			_Value = value ?? throw new ArgumentNullException(nameof(value));
 		}
