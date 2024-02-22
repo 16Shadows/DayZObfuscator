@@ -221,8 +221,6 @@ namespace DayZObfuscatorModel.PBO.Packer
 			{
 				foreach (PBOFile file in pbo.Files)
 				{
-					if (file.FileContent == null)
-						continue;
 					writer.Write(file.FullPathInPBO);
 					writer.Write(file.MimeType);
 					writer.Write(file.OriginalSize);

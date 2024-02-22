@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using CSToolbox.Extensions;
 using DayZObfuscatorModel.PBO.Packer;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace DayZObfuscatorModel.PBO.Config
 {
