@@ -65,7 +65,7 @@ namespace DayZObfuscatorModel.PBO
 		/// </summary>
 		public uint TimeStamp { get; set; }
 		/// <summary>
-		/// Size of the file when it is unpacked.
+		/// Size of the file in the PBO.
 		/// </summary>
 		public uint DataSize { get; set; }
 		
@@ -87,9 +87,9 @@ namespace DayZObfuscatorModel.PBO
 		{
 			ArgumentNullException.ThrowIfNull(pboPath, nameof(pboPath));
 
-			_Filename = Path.GetFileName(pboPath);
+			_Filename = Path.GetFileName(pboPath) ?? "";
 
-			if (Path.IsPathRooted(pboPath) || _Filename == null)
+			if (Path.IsPathRooted(pboPath))
 				throw new ArgumentException($"{nameof(pboPath)} ({pboPath}) should be a valid relative non-rooted path to a file.");
 
 			_PathInPBO = Path.GetDirectoryName(pboPath) ?? "";
