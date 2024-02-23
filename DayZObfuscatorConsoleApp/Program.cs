@@ -157,9 +157,11 @@ namespace DayZObfuscatorConsoleApp
 							{
 								object? propsInstance = Activator.CreateInstance(propsType, false);
 
-								if (propsInstance != null && module.Properties != null)
+								if (propsInstance != null)
 								{
-									PopulateTypeFromDictionary(propsInstance, module.Properties);
+									if (module.Properties != null)
+										PopulateTypeFromDictionary(propsInstance, module.Properties);
+									
 									Components.Add((PBOPackerComponent)constructor.Invoke(new object?[] { propsInstance }));
 									continue;
 								}
