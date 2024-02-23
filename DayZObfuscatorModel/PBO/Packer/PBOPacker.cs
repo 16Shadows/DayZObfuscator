@@ -252,6 +252,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 					if (file.FileContent == null)
 						continue;
 					writer.Write(file.FileContent);
+					file.FileContent.Dispose();
 				}
 			}
 
