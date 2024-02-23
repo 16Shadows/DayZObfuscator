@@ -18,17 +18,12 @@ namespace DayZObfuscatorModel.PBO.Packer
 		{
 			const int chunkSize = 8*1024;
 
-			long toWrite = stream.Length - stream.Position;
-
 			//Write in chunks of 8KB
 			byte[] buffer = new byte[chunkSize];
 
 			int readBytes;
-			for (; toWrite > 0; toWrite -= readBytes)
-			{
-				readBytes = stream.Read(buffer, 0, chunkSize);
+			while((readBytes = stream.Read(buffer, 0, chunkSize)) > 0)
 				base.Write(buffer, 0, readBytes);
-			}
 		}
 	}
 }

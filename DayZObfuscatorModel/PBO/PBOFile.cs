@@ -1,5 +1,4 @@
-﻿using System.Data;
-using DayZObfuscatorModel.PBO.Packer;
+﻿using DayZObfuscatorModel.PBO.Packer;
 
 namespace DayZObfuscatorModel.PBO
 {
