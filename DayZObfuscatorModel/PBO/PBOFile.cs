@@ -44,7 +44,7 @@ namespace DayZObfuscatorModel.PBO
 		/// Full path the the file within the PBO, as it will be written into the header.
 		/// Composed of <see cref="PathInPBO"/> and <see cref="Filename"/>.
 		/// </summary>
-		public string FullPathInPBO => Path.Combine(PathInPBO, Filename);
+		public string FullPathInPBO => $"{PathInPBO}/{Filename}";
 
 		/// <summary>
 		/// Mime type if this file. Default constants are available in <see cref="MimeTypes"/>.
