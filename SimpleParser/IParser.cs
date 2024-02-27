@@ -22,7 +22,8 @@
 		/// </summary>
 		/// <param name="lexer">The <see cref="ILexer{LexerToken}"/> which will provide tokens for the operation.</param>
 		/// <param name="state">The state from which the parser should start.</param>
+		/// <param name="stateStack">State stack of the parser to use (for context-sensitive parsing or to pass to <see cref="IParserErrorResolver{LexerToken, ParserResult, ParserError, ParserStates}"/>).</param>
 		/// <returns>A set of errors encountered during the parse. If no errors where encountered, should be an empty enumerable.</returns>
-		IEnumerable<ParserError> TryParseFromState(ILexer<LexerToken> lexer, ParserStates state);
+		IEnumerable<ParserError> TryParseFromState(ILexer<LexerToken> lexer, ParserStates state, IEnumerable<ParserStates> stateStack);
 	}
 }

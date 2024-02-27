@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DayZObfuscatorModel.Parser
+﻿namespace DayZObfuscatorModel.Parser
 {
 	/// <summary>
 	/// A base class for a parser's state used for error-handling.
@@ -16,7 +10,17 @@ namespace DayZObfuscatorModel.Parser
 		/// <summary>
 		/// The state in which the parser was when the error occured
 		/// </summary>
-		public ParserStates CurrentState { get; }
+		public ParserStates CurrentState => StateStack.Last();
+
+		/// <summary>
+		/// A list of all states the parser entered excluding current state
+		/// </summary>
+		public IEnumerable<ParserStates> PreviousStates => StateStack.Take(StateStack.Count() - 1);
+
+		/// <summary>
+		/// A list of all states the parser has entered (including current state)
+		/// </summary>
+		public IEnumerable<ParserStates> StateStack { get; }
 
 		/// <summary>
 		/// All the tokens consumed in this parser's state
@@ -31,24 +35,24 @@ namespace DayZObfuscatorModel.Parser
 		/// <summary>
 		/// Creates an instance of ParserState
 		/// </summary>
-		/// <param name="currentState">The state the parser is in.</param>
+		/// <param name="stateStack">The state the parser is in.</param>
 		/// <param name="currentToken">The token the parser is currently examining</param>
 		/// <param name="consumedTokens">A set of tokens already consumed by the parser's state. If the parser's state were to received these tokens, it would end up in this same state.</param>
 		/// <exception cref="ArgumentNullException"></exception>
-		public ParserState(ParserStates currentState, LexerToken currentToken, IEnumerable<LexerToken> consumedTokens)
+		public ParserState(IEnumerable<ParserStates> stateStack, LexerToken currentToken, IEnumerable<LexerToken> consumedTokens)
 		{
-			CurrentState = currentState;
+			StateStack = stateStack;
 			ConsumedTokens = consumedTokens ?? throw new ArgumentNullException(nameof(consumedTokens));
 			CurrentToken = currentToken ?? throw new ArgumentNullException(nameof(currentToken));
 		}
 
-		public ParserState(ParserStates currentState, LexerToken currentToken, params LexerToken[] consumedTokens) : this(currentState, currentToken, (IEnumerable<LexerToken>)consumedTokens) {}
+		public ParserState(IEnumerable<ParserStates> stateStack, LexerToken currentToken, params LexerToken[] consumedTokens) : this(stateStack, currentToken, (IEnumerable<LexerToken>)consumedTokens) {}
 
 		/// <summary>
 		/// Create a parser state with only a single token peeked
 		/// </summary>
-		/// <param name="currentState">The state the parser is in.</param>
+		/// <param name="stateStack">The state the parser is in.</param>
 		/// <param name="currentToken">The token the parser is currently examining</param>
-		public ParserState(ParserStates currentState, LexerToken currentToken) : this(currentState, currentToken, Enumerable.Empty<LexerToken>()) { }
+		public ParserState(IEnumerable<ParserStates> stateStack, LexerToken currentToken) : this(stateStack, currentToken, Enumerable.Empty<LexerToken>()) { }
 	}
 }

@@ -168,19 +168,19 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				throw new ArgumentException($"Error {error} is not supported by the resolver for Value state.");
 		}
 
-		protected static ILexer<ConfigToken> ResolveBySkipOrReplaceOrInject(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ConfigToken newToken)
+		protected static ILexer<ConfigToken> ResolveBySkipReplaceInject(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ConfigToken newToken)
 		{
 			//If we reached EndOfDocument, we can't drop the token, we have to prepend
 			if (state.CurrentToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
 				return lexer.Prepend(newToken);
 
 			//Try parsing with the next token skipped
-			int errorCountOnRemoval = parser.TryParseFromState(BuildLexerWithSkippedToken(lexer, state), state.CurrentState).Count();
+			int errorCountOnRemoval = parser.TryParseFromState(BuildLexerWithSkippedToken(lexer, state), state.CurrentState, state.PreviousStates).Count();
 
-			int errorsOnReplace = parser.TryParseFromState(BuildLexerWithReplacedToken(lexer, state, newToken), state.CurrentState).Count();
+			int errorsOnReplace = parser.TryParseFromState(BuildLexerWithReplacedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
 
 			//Try parsing with a dummy token inserted in front of the erroneous token
-			int errorsOnInsert = parser.TryParseFromState(BuildLexerWithInjectedToken(lexer, state, newToken), state.CurrentState).Count();
+			int errorsOnInsert = parser.TryParseFromState(BuildLexerWithInjectedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
 
 			int minErrors = Math.Min(Math.Min(errorCountOnRemoval, errorsOnReplace), errorsOnInsert);
 
@@ -198,6 +198,173 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			else
 				return lexer.Prepend(newToken);
 		}
+
+		protected static ILexer<ConfigToken> ResolveBySkipInjectReplace(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ConfigToken newToken)
+		{
+			//If we reached EndOfDocument, we can't drop the token, we have to prepend
+			if (state.CurrentToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
+				return lexer.Prepend(newToken);
+
+			//Try parsing with the next token skipped
+			int errorCountOnRemoval = parser.TryParseFromState(BuildLexerWithSkippedToken(lexer, state), state.CurrentState, state.PreviousStates).Count();
+
+			int errorsOnReplace = parser.TryParseFromState(BuildLexerWithReplacedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			//Try parsing with a dummy token inserted in front of the erroneous token
+			int errorsOnInsert = parser.TryParseFromState(BuildLexerWithInjectedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			int minErrors = Math.Min(Math.Min(errorCountOnRemoval, errorsOnReplace), errorsOnInsert);
+
+			//Choose the best option based on the number of errors during the parsing where removal > replacement > injection
+			if (errorCountOnRemoval == minErrors)
+			{
+				lexer.Consume();
+				return lexer;
+			}
+			else if (errorsOnInsert == minErrors)
+			{
+				return lexer.Prepend(newToken);
+			}
+			else
+			{
+				lexer.Consume();
+				return lexer.Prepend(newToken);
+			}
+		}
+
+		protected static ILexer<ConfigToken> ResolveByInjectReplaceSkip(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ConfigToken newToken)
+		{
+			//If we reached EndOfDocument, we can't drop the token, we have to prepend
+			if (state.CurrentToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
+				return lexer.Prepend(newToken);
+
+			//Try parsing with the next token skipped
+			int errorCountOnRemoval = parser.TryParseFromState(BuildLexerWithSkippedToken(lexer, state), state.CurrentState, state.PreviousStates).Count();
+
+			int errorsOnReplace = parser.TryParseFromState(BuildLexerWithReplacedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			//Try parsing with a dummy token inserted in front of the erroneous token
+			int errorsOnInsert = parser.TryParseFromState(BuildLexerWithInjectedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			int minErrors = Math.Min(Math.Min(errorCountOnRemoval, errorsOnReplace), errorsOnInsert);
+
+			//Choose the best option based on the number of errors during the parsing where removal > replacement > injection
+			if (errorsOnInsert == minErrors)
+			{
+				return lexer.Prepend(newToken);
+			}
+			else if (errorsOnReplace == minErrors)
+			{
+				lexer.Consume();
+				return lexer.Prepend(newToken);
+			}
+			else
+			{
+				lexer.Consume();
+				return lexer;
+			}
+		}
+
+		protected static ILexer<ConfigToken> ResolveByInjectSkipReplace(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ConfigToken newToken)
+		{
+			//If we reached EndOfDocument, we can't drop the token, we have to prepend
+			if (state.CurrentToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
+				return lexer.Prepend(newToken);
+
+			//Try parsing with the next token skipped
+			int errorCountOnRemoval = parser.TryParseFromState(BuildLexerWithSkippedToken(lexer, state), state.CurrentState, state.PreviousStates).Count();
+
+			int errorsOnReplace = parser.TryParseFromState(BuildLexerWithReplacedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			//Try parsing with a dummy token inserted in front of the erroneous token
+			int errorsOnInsert = parser.TryParseFromState(BuildLexerWithInjectedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			int minErrors = Math.Min(Math.Min(errorCountOnRemoval, errorsOnReplace), errorsOnInsert);
+
+			//Choose the best option based on the number of errors during the parsing where removal > replacement > injection
+			if (errorsOnInsert == minErrors)
+			{
+				return lexer.Prepend(newToken);
+			}
+			else if (errorCountOnRemoval == minErrors)
+			{
+				lexer.Consume();
+				return lexer;
+			}
+			else
+			{
+				lexer.Consume();
+				return lexer.Prepend(newToken);
+			}
+			
+		}
+
+		protected static ILexer<ConfigToken> ResolveByReplaceSkipInject(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ConfigToken newToken)
+		{
+			//If we reached EndOfDocument, we can't drop the token, we have to prepend
+			if (state.CurrentToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
+				return lexer.Prepend(newToken);
+
+			//Try parsing with the next token skipped
+			int errorCountOnRemoval = parser.TryParseFromState(BuildLexerWithSkippedToken(lexer, state), state.CurrentState, state.PreviousStates).Count();
+
+			int errorsOnReplace = parser.TryParseFromState(BuildLexerWithReplacedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			//Try parsing with a dummy token inserted in front of the erroneous token
+			int errorsOnInsert = parser.TryParseFromState(BuildLexerWithInjectedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			int minErrors = Math.Min(Math.Min(errorCountOnRemoval, errorsOnReplace), errorsOnInsert);
+
+			//Choose the best option based on the number of errors during the parsing where removal > replacement > injection
+			if (errorsOnReplace == minErrors)
+			{
+				lexer.Consume();
+				return lexer.Prepend(newToken);
+			}
+			else if (errorCountOnRemoval == minErrors)
+			{
+				lexer.Consume();
+				return lexer;
+			}
+			else
+			{
+				return lexer.Prepend(newToken);
+			}
+		}
+
+		protected static ILexer<ConfigToken> ResolveByReplaceInjectSkip(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ConfigToken newToken)
+		{
+			//If we reached EndOfDocument, we can't drop the token, we have to prepend
+			if (state.CurrentToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
+				return lexer.Prepend(newToken);
+
+			//Try parsing with the next token skipped
+			int errorCountOnRemoval = parser.TryParseFromState(BuildLexerWithSkippedToken(lexer, state), state.CurrentState, state.PreviousStates).Count();
+
+			int errorsOnReplace = parser.TryParseFromState(BuildLexerWithReplacedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			//Try parsing with a dummy token inserted in front of the erroneous token
+			int errorsOnInsert = parser.TryParseFromState(BuildLexerWithInjectedToken(lexer, state, newToken), state.CurrentState, state.PreviousStates).Count();
+
+			int minErrors = Math.Min(Math.Min(errorCountOnRemoval, errorsOnReplace), errorsOnInsert);
+
+			//Choose the best option based on the number of errors during the parsing where removal > replacement > injection
+			if (errorsOnReplace == minErrors)
+			{
+				lexer.Consume();
+				return lexer.Prepend(newToken);
+			}
+			else if (errorsOnInsert == minErrors)
+			{
+				return lexer.Prepend(newToken);
+			}
+			else
+			{
+				lexer.Consume();
+				return lexer;
+			}
+		}
+
 
 		protected static ILexer<ConfigToken> BuildLexerWithSkippedToken(ILexer<ConfigToken> lexer, ParserState<ConfigToken, ConfigParserStates> state)
 		{
