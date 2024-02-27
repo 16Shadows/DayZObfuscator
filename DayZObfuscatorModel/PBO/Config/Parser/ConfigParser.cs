@@ -240,7 +240,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 			expressionToken = lexer.Consume();
 
-			ParseResultWithTokens<PBOConfigValueBase, ParserErrorBase<ConfigParserErrors>, ConfigToken> value;
+			ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors>, ConfigToken> value;
 
 			PBOConfigExpressionBase? expr = null;
 			if (expressionToken.TokenType == ConfigToken.ConfigTokenType.Symbol_Assign)
@@ -264,7 +264,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			return new ParseResult<PBOConfigExpressionBase, ParserErrorBase<ConfigParserErrors>>(expr, true, errors);
 		}
 
-		protected ParseResultWithTokens<PBOConfigValueBase, ParserErrorBase<ConfigParserErrors>, ConfigToken> ParseValue(ILexer<ConfigToken> lexer, IEnumerable<ConfigParserStates> states)
+		protected ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors>, ConfigToken> ParseValue(ILexer<ConfigToken> lexer, IEnumerable<ConfigParserStates> states)
 		{
 			IEnumerable<ParserErrorBase<ConfigParserErrors>> errors = Enumerable.Empty<ParserErrorBase<ConfigParserErrors>>();
 			states = states.Append(ConfigParserStates.Value);
@@ -275,43 +275,43 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				if (int.TryParse(nextToken.Token, CultureInfo.InvariantCulture, out int intValue))
 				{
 					_ = lexer.Consume();
-					return new ParseResultWithTokens<PBOConfigValueBase, ParserErrorBase<ConfigParserErrors>, ConfigToken>(new PBOConfigValueInt(intValue), true, errors, nextToken);
+					return new ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors>, ConfigToken>(new PBOConfigValueInt(intValue), true, errors, nextToken);
 				}
 				else if (float.TryParse(nextToken.Token, CultureInfo.InvariantCulture, out float dValue))
 				{
 					_ = lexer.Consume();
-					return new ParseResultWithTokens<PBOConfigValueBase, ParserErrorBase<ConfigParserErrors>, ConfigToken>( new PBOConfigValueFloat(dValue), true, errors, nextToken);
+					return new ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors>, ConfigToken>( new PBOConfigValueFloat(dValue), true, errors, nextToken);
 				}
 				else
 				{
 					var error = new ParserErrorBase<ConfigParserErrors>(nextToken, ConfigParserErrors.InvalidNumber);
 					errors = errors.Append(error);
 					lexer = _ErrorResolver.Resolve(lexer, this, new ParserState<ConfigToken, ConfigParserStates>(states, nextToken), error);
-					return (ParseResultWithTokens<PBOConfigValueBase, ParserErrorBase<ConfigParserErrors>, ConfigToken>)ParseValue(lexer, states).TransformErrors(e => errors.Concat(e));
+					return (ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors>, ConfigToken>)ParseValue(lexer, states).TransformErrors(e => errors.Concat(e));
 				}
 			}
 			else if (nextToken.TokenType == ConfigToken.ConfigTokenType.String)
 			{
 				lexer.Consume();
-				return new ParseResultWithTokens<PBOConfigValueBase, ParserErrorBase<ConfigParserErrors>, ConfigToken>(new PBOConfigValueString(nextToken.Token[1..^1]), true, errors, nextToken);
+				return new ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors>, ConfigToken>(new PBOConfigValueString(nextToken.Token[1..^1]), true, errors, nextToken);
 			}
 			else if (nextToken.TokenType == ConfigToken.ConfigTokenType.BrokenString)
 			{
 				var error = new ParserErrorBase<ConfigParserErrors>(nextToken, ConfigParserErrors.BrokenString);
 				errors = errors.Append(error);
 				lexer = _ErrorResolver.Resolve(lexer, this, new ParserState<ConfigToken, ConfigParserStates>(states, nextToken), error);
-				return (ParseResultWithTokens<PBOConfigValueBase, ParserErrorBase<ConfigParserErrors>, ConfigToken>)ParseValue(lexer, states).TransformErrors(e => errors.Concat(e));
+				return (ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors>, ConfigToken>)ParseValue(lexer, states).TransformErrors(e => errors.Concat(e));
 			}
 			else
 			{
 				var error = new ParserErrorBase<ConfigParserErrors>(nextToken, ConfigParserErrors.UnexpectedToken);
 				errors = errors.Append(error);
 				lexer = _ErrorResolver.Resolve(lexer, this, new ParserState<ConfigToken, ConfigParserStates>(states, nextToken), error);
-				return (ParseResultWithTokens<PBOConfigValueBase, ParserErrorBase<ConfigParserErrors>, ConfigToken>)ParseValue(lexer, states).TransformErrors(e => errors.Concat(e));
+				return (ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors>, ConfigToken>)ParseValue(lexer, states).TransformErrors(e => errors.Concat(e));
 			}
 		}
 
-		protected ParseResult<IList<PBOConfigValueBase>, ParserErrorBase<ConfigParserErrors>> ParseArray(ILexer<ConfigToken> lexer, IEnumerable<ConfigParserStates> states)
+		protected ParseResult<PBOConfigArray, ParserErrorBase<ConfigParserErrors>> ParseArray(ILexer<ConfigToken> lexer, IEnumerable<ConfigParserStates> states)
 		{
 			IEnumerable<ParserErrorBase<ConfigParserErrors>> errors = Enumerable.Empty<ParserErrorBase<ConfigParserErrors>>();
 			states = states.Append(ConfigParserStates.Array);
@@ -332,7 +332,13 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			if (firstValue.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight)
 			{
 				lexer.Consume();
-				return new ParseResult<IList<PBOConfigValueBase>, ParserErrorBase<ConfigParserErrors>>(arr, true, errors);
+				return new ParseResult<PBOConfigArray, ParserErrorBase<ConfigParserErrors>>(new PBOConfigArray(arr), true, errors);
+			}
+			else if (firstValue.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketLeft)
+			{
+				var result = ParseArray(lexer, states);
+				arr.Add(result.Result);
+				errors = errors.Concat(result.Errors);
 			}
 			else
 			{
@@ -356,13 +362,21 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 
 				if (nextToken.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight || nextToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
 					break;
-
-
-				nextToken = lexer.Consume();
 				
-				var result = ParseValue(lexer, states);
-				arr.Add(result.Result);
-				errors = errors.Concat(result.Errors);
+				nextToken = lexer.Consume();
+
+				if (firstValue.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketLeft)
+				{
+					var result = ParseArray(lexer, states);
+					arr.Add(result.Result);
+					errors = errors.Concat(result.Errors);
+				}
+				else
+				{
+					var result = ParseValue(lexer, states);
+					arr.Add(result.Result);
+					errors = errors.Concat(result.Errors);
+				}
 			}
 
 			nextToken = lexer.Peek();
@@ -374,7 +388,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 			nextToken = lexer.Consume();
 
-			return new ParseResult<IList<PBOConfigValueBase>, ParserErrorBase<ConfigParserErrors>>(arr, true, errors);
+			return new ParseResult<PBOConfigArray, ParserErrorBase<ConfigParserErrors>>(new PBOConfigArray(arr), true, errors);
 		}
 
 		protected ParseResult<object, ParserErrorBase<ConfigParserErrors>> ParseClass(ILexer<ConfigToken> lexer, IEnumerable<ConfigParserStates> states)

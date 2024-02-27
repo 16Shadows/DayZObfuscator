@@ -1,17 +1,16 @@
-﻿using CSToolbox.Extensions;
-using DayZObfuscatorModel.PBO.Packer;
+﻿using DayZObfuscatorModel.PBO.Packer;
 
 namespace DayZObfuscatorModel.PBO.Config
 {
 	public class PBOConfigArrayExpressionAdd : PBOConfigArrayExpressionBase
 	{
-		public PBOConfigArrayExpressionAdd(string identifier, IList<PBOConfigValueBase> value) : base(identifier, value)
+		public PBOConfigArrayExpressionAdd(string identifier, PBOConfigArray value) : base(identifier, value)
 		{
 		}
 
 		public override string ToString()
 		{
-			return $"{Identifier} += {{{Value.ToString(", ")}}};";
+			return $"{Identifier} += {Value};";
 		}
 
 		public override bool Equals(object? obj)
@@ -27,22 +26,14 @@ namespace DayZObfuscatorModel.PBO.Config
 		public override void Binarize(PBOWriter writer)
 		{
 			writer.Write((byte)5);
-			writer.Write(1u);
+			writer.Write(2u);
 			writer.Write(Identifier.TrimEnd('[', ']'));
-			writer.Write((byte)Value.Count);
-			foreach(PBOConfigValueBase value in Value)
-			{
-				writer.Write(value.GetBinarizedType());
-				value.Binarize(writer);
-			}
+			Value.Binarize(writer);
 		}
 
 		public override uint GetBinarizedSize()
 		{
-			uint size = (uint)Identifier.TrimEnd('[', ']').Length + 1 + 1 + 1 + 4 + (uint)Value.Count; // Identifier length + 1 for terminator + 1 byte for number of items + 1 byte for type + 4 for modification type + 1 byte for variable type of each value
-			foreach (PBOConfigValueBase value in Value)
-				size += value.GetBinarizedSize(); //If its a string, length + 1 byte for terminator. Otherwise its 4 bytes (for int or float)
-			return size;
+			return (uint)Identifier.TrimEnd('[', ']').Length + 1 + 1 + 4 + Value.GetBinarizedSize(); // Identifier length + 1 for terminator + 1 byte for type + 4 for modification type
 		}
 	}
 }

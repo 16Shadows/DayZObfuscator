@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace DayZObfuscatorModel.PBO.Config
 {
-	public class PBOConfigValueInt : PBOConfigValueBase, IEquatable<PBOConfigValueInt>, IEquatable<int>
+	public class PBOConfigValueInt : PBOConfigVariableValue, IEquatable<PBOConfigValueInt>, IEquatable<int>
 	{
 		public int Value { get; set; }
 

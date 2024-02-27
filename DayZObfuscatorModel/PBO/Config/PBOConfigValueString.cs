@@ -3,7 +3,7 @@ using DayZObfuscatorModel.PBO.Packer;
 
 namespace DayZObfuscatorModel.PBO.Config
 {
-	public class PBOConfigValueString : PBOConfigValueBase, IEquatable<PBOConfigValueString>, IEquatable<string>
+	public class PBOConfigValueString : PBOConfigVariableValue, IEquatable<PBOConfigValueString>, IEquatable<string>
 	{
 		private string _Value;
 

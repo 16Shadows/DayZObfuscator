@@ -4,11 +4,11 @@ namespace DayZObfuscatorModel.PBO.Config
 {
 	public class PBOConfigExpressionVariableAssignment : PBOConfigExpressionBase, IEquatable<PBOConfigExpressionVariableAssignment>
 	{
-		private PBOConfigValueBase _Value;
+		private PBOConfigVariableValue _Value;
 
-		public PBOConfigValueBase Value { get => _Value; set => _Value = value ?? throw new ArgumentNullException(nameof(value)); }
+		public PBOConfigVariableValue Value { get => _Value; set => _Value = value ?? throw new ArgumentNullException(nameof(value)); }
 
-		public PBOConfigExpressionVariableAssignment(string identifier, PBOConfigValueBase value) : base(identifier)
+		public PBOConfigExpressionVariableAssignment(string identifier, PBOConfigVariableValue value) : base(identifier)
 		{
 			_Value = value ?? throw new ArgumentNullException(nameof(value));
 		}
@@ -20,7 +20,7 @@ namespace DayZObfuscatorModel.PBO.Config
 
 		public override bool Equals(object? obj)
 		{
-			return (obj is PBOConfigExpressionVariableAssignment var && Equals(var));
+			return base.Equals(obj) && (obj is PBOConfigExpressionVariableAssignment var && Equals(var));
 		}
 
 		public override int GetHashCode()
@@ -30,7 +30,7 @@ namespace DayZObfuscatorModel.PBO.Config
 
 		public bool Equals(PBOConfigExpressionVariableAssignment? other)
 		{
-			return Value.Equals(other?.Value);
+			return base.Equals(other) && Value.Equals(other?.Value);
 		}
 
 		public override void Binarize(PBOWriter writer)
