@@ -31,9 +31,9 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\t};\n" +
 										 "};";
 
-			ConfigParser parser = new ConfigParser(new TestErrorResolver());
+			ConfigParser parser = new ConfigParser();
 
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new TestErrorResolver());
 			PBOConfig config = result.Result;
 
 			Assert.AreEqual(0, result.Errors.Count());
@@ -87,11 +87,11 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\t};\n" +
 										 "};";
 			 
-			ConfigParser parser = new ConfigParser(new TestErrorResolver());
+			ConfigParser parser = new ConfigParser();
 
 			Assert.ThrowsException<InvalidSyntaxException>(() =>
 			{
-				ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+				ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new TestErrorResolver());
 			});
 		}
 
@@ -103,8 +103,8 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\tstr = \"test text;\n" +
 										 "};";
 			 
-			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			ConfigParser parser = new ConfigParser();
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(2, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.BrokenString, result.Errors.First().Message);
@@ -119,8 +119,8 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\tstr = -22.32.33;\n" +
 										 "};";
 			 
-			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			ConfigParser parser = new ConfigParser();
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.InvalidNumber, result.Errors.First().Message);
@@ -134,8 +134,8 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\tstr = var22;\n" +
 										 "};";
 			 
-			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			ConfigParser parser = new ConfigParser();
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.UnexpectedToken, result.Errors.First().Message);
@@ -149,8 +149,8 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\tarr[] = 22, 33 };\n" +
 										 "};";
 			 
-			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			ConfigParser parser = new ConfigParser();
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.ExpectedLeftCurlyBracket, result.Errors.First().Message);
@@ -164,8 +164,8 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\tarr[] = { 22, 33 ;\n" +
 										 "};";
 			 
-			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			ConfigParser parser = new ConfigParser();
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.ExpectedCommaOrRightCurlyBracket, result.Errors.First().Message);
@@ -179,8 +179,8 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\tarr[] = { 22 33 };\n" +
 										 "};";
 			 
-			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			ConfigParser parser = new ConfigParser();
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.ExpectedCommaOrRightCurlyBracket, result.Errors.First().Message);
@@ -194,8 +194,8 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "\tarr[] = { 22, };\n" +
 										 "};";
 			 
-			ConfigParser parser = new ConfigParser(new ConfigParserErrorResolver());
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document));
+			ConfigParser parser = new ConfigParser();
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreNotEqual(0, result.Errors.Count());
 		}

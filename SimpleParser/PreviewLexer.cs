@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DayZObfuscatorModel.Parser
+﻿namespace DayZObfuscatorModel.Parser
 {
-	internal class PreviewLexer<LexerToken> : ILexer<LexerToken> where LexerToken : LexerTokenBase
+	public class PreviewLexer<LexerToken> : ILexer<LexerToken> where LexerToken : LexerTokenBase
 	{
 		protected readonly ILexer<LexerToken> _Lexer;
 		protected int _ConsumedCount;
+
+		public int ConsumedCount => _ConsumedCount;
 
 		public PreviewLexer(ILexer<LexerToken> lexer)
 		{

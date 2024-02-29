@@ -129,7 +129,7 @@ namespace DayZObfuscatorConsoleApp
 				 * Replace / and \ with patten matching either of them
 				 * Replace wildcards with pattern matching anything
 				 */
-				BaseArgs.ExclusionPatterns = BaseArgs.ExclusionPatterns.Select(x => Regex.Escape(x)
+				BaseArgs.ExclusionPatterns = BaseArgs.ExclusionPatterns.Select(x => Regex.Escape(x.Trim())
 														 .Replace(Regex.Escape("/"), "[/\\]")
 														 .Replace(Regex.Escape("\\"), "[/\\]")
 														 .Replace(Regex.Escape("*"), ".+")).ToArray();

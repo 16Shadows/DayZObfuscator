@@ -8,7 +8,8 @@ namespace DayZObfuscatorModel.Analyzers
 {
 	public static class ProjectFolderAnalyzer
 	{
-		private static readonly ConfigParser _ConfigParser = new ConfigParser( new ConfigParserErrorResolver() );
+		private static readonly ConfigParserErrorResolver _ConfigErrorResolver = new ConfigParserErrorResolver();
+		private static readonly ConfigParser _ConfigParser = new ConfigParser();
 
 		public static PBODescriptor? LoadPBO(string pathToRoot, bool includeHiddenDirectories = false, bool includeHiddenFiles = false)
 		{
@@ -20,7 +21,7 @@ namespace DayZObfuscatorModel.Analyzers
 			if (!File.Exists(pathToRoot + "\\config.cpp"))
 				return null;
 
-			var result = _ConfigParser.Parse( new ConfigLexer( new FileInputReader(pathToRoot + "\\config.cpp") ) );
+			var result = _ConfigParser.Parse( new ConfigLexer( new FileInputReader(pathToRoot + "\\config.cpp") ), _ConfigErrorResolver );
 
 			var descriptor = new PBODescriptor(pathToRoot, result);
 
@@ -50,7 +51,7 @@ namespace DayZObfuscatorModel.Analyzers
 
 			if (File.Exists(path + "\\config.cpp"))
 			{
-				var result = _ConfigParser.Parse( new ConfigLexer( new FileInputReader(path + "\\config.cpp") ) );
+				var result = _ConfigParser.Parse( new ConfigLexer( new FileInputReader(path + "\\config.cpp") ), _ConfigErrorResolver);
 
 				var descriptor = new PBODescriptor(path, result);
 

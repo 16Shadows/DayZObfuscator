@@ -10,7 +10,7 @@
 		/// <summary>
 		/// The state in which the parser was when the error occured
 		/// </summary>
-		public ParserStates CurrentState => StateStack.Last();
+		public ParserStates CurrentState { get; }
 
 		/// <summary>
 		/// A list of all states the parser entered excluding current state
@@ -44,6 +44,7 @@
 			StateStack = stateStack;
 			ConsumedTokens = consumedTokens ?? throw new ArgumentNullException(nameof(consumedTokens));
 			CurrentToken = currentToken ?? throw new ArgumentNullException(nameof(currentToken));
+			CurrentState = stateStack.Last();
 		}
 
 		public ParserState(IEnumerable<ParserStates> stateStack, LexerToken currentToken, params LexerToken[] consumedTokens) : this(stateStack, currentToken, (IEnumerable<LexerToken>)consumedTokens) {}

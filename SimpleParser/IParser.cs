@@ -13,8 +13,9 @@
 		/// Perform full parse, producing <see cref="ParserResult"/>.
 		/// </summary>
 		/// <param name="lexer">The <see cref="ILexer{LexerToken}"/> which will provide tokens for the operation.</param>
+		/// <param name="errorResolver">The error resolver to use when resolving errors.</param>
 		/// <returns><see cref="ParseResult{ParserResult, ParserError}"/> - an object describing parsing results.</returns>
-		ParseResult<ParserResult, ParserError> Parse(ILexer<LexerToken> lexer);
+		ParseResult<ParserResult, ParserError> Parse(ILexer<LexerToken> lexer, IParserErrorResolver<LexerToken, ParserResult, ParserError, ParserStates> errorResolver);
 
 		/// <summary>
 		/// Perform partial parse from a particular parser state.
@@ -23,7 +24,8 @@
 		/// <param name="lexer">The <see cref="ILexer{LexerToken}"/> which will provide tokens for the operation.</param>
 		/// <param name="state">The state from which the parser should start.</param>
 		/// <param name="stateStack">State stack of the parser to use (for context-sensitive parsing or to pass to <see cref="IParserErrorResolver{LexerToken, ParserResult, ParserError, ParserStates}"/>).</param>
+		/// <param name="errorResolver">The error resolver to use when resolving errors.</param>
 		/// <returns>A set of errors encountered during the parse. If no errors where encountered, should be an empty enumerable.</returns>
-		IEnumerable<ParserError> TryParseFromState(ILexer<LexerToken> lexer, ParserStates state, IEnumerable<ParserStates> stateStack);
+		IEnumerable<ParserError> TryParseFromState(ILexer<LexerToken> lexer, ParserStates state, IEnumerable<ParserStates> stateStack, IParserErrorResolver<LexerToken, ParserResult, ParserError, ParserStates> errorResolver);
 	}
 }
