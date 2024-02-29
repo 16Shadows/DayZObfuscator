@@ -69,7 +69,7 @@
 				count -= prepended;
 			}
 
-			if (count < 0)
+			if (count <= 0)
 				return tokens;
 			else if (_EndDetector == null)
 				return tokens.Concat( _Lexer.Peek(count) );
