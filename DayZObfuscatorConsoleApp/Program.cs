@@ -7,6 +7,7 @@ using DayZObfuscatorModel.PBO.Config.Parser;
 using DayZObfuscatorModel.PBO.Packer;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace DayZObfuscatorConsoleApp
 {
@@ -33,6 +34,9 @@ namespace DayZObfuscatorConsoleApp
 
 			[Option('l', "log", Default = null, HelpText = "Specifies path to a file into which logs will be written. If no file is specified, logs will be written to console window instead.", Required = false)]
 			public string? LogPath { get; set; }
+
+			[Option('x', "exclude", Separator = ';', HelpText = "Specifies a semicolumn-separated list of files to be excluded from PBO. Paths are specified relative to mod folder (e.g. 'script.c' will exclude file 'script.c' located in mod folder). Wildcards can be used to exclude patterns (e.g. '*.jpg' excludes all files with 'jpg' extension).")]
+			public IEnumerable<string>? ExclusionPatterns { get; set; }
 		}
 
 		[Verb("analyze", HelpText = "Detect all possible PBOs in the target folder")]
@@ -116,6 +120,20 @@ namespace DayZObfuscatorConsoleApp
 				else
 					Logger.WriteLine($"Specified module configuration ({BaseArgs.ModuleConfigurationPath}) doesn't exist!");
 			}
+
+			if (BaseArgs.ExclusionPatterns != null)
+			{
+				/*
+				 * Build regex patterns from provided patterns with wildcards
+				 * Escape provided pattern so it is treated literally (no accidental regex expressions in it)
+				 * Replace / and \ with patten matching either of them
+				 * Replace wildcards with pattern matching anything
+				 */
+				BaseArgs.ExclusionPatterns = BaseArgs.ExclusionPatterns.Select(x => Regex.Escape(x)
+														 .Replace(Regex.Escape("/"), "[/\\]")
+														 .Replace(Regex.Escape("\\"), "[/\\]")
+														 .Replace(Regex.Escape("*"), ".+")).ToArray();
+			}
 		}
 
 		private static readonly Type[] RawPropertiesConstructorTypes = new Type[] { typeof(Dictionary<string, object>) };
@@ -198,6 +216,28 @@ namespace DayZObfuscatorConsoleApp
 			}
 		}
 
+		void FilterPBOFiles(PBODescriptor descriptor)
+		{
+			ArgumentNullException.ThrowIfNull(descriptor);
+			ArgumentNullException.ThrowIfNull(BaseArgs);
+
+			if (BaseArgs.ExclusionPatterns == null)
+				return;
+
+			foreach (string pattern in BaseArgs.ExclusionPatterns)
+			{
+				Regex matcher = new Regex(pattern);
+				for (int i = 0; i < descriptor.Files.Count; )
+				{
+					Match match = matcher.Match(descriptor.Files[i].FullPathInPBO);
+					if (match.Success && match.Length == descriptor.Files[i].FullPathInPBO.Length)
+						descriptor.Files.RemoveAt(i);
+					else
+						i++;
+				}
+			}
+		}
+
 		private static void PopulateTypeFromDictionary(object instance, Dictionary<string, object> values)
 		{
 			ArgumentNullException.ThrowIfNull(instance);
@@ -243,6 +283,7 @@ namespace DayZObfuscatorConsoleApp
 				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(AnalyzerArgs.TargetDirectory, AnalyzerArgs.IncludeHiddenDirectories, AnalyzerArgs.IncludeHiddenFiles);
 				foreach (var descriptor in descriptors)
 				{
+					FilterPBOFiles(descriptor);
 					OutputPBOInfo(descriptor);
 					Logger?.WriteLine("-------");
 				}
@@ -256,6 +297,7 @@ namespace DayZObfuscatorConsoleApp
 					return;
 				}
 
+				FilterPBOFiles(descriptor);
 				OutputPBOInfo(descriptor);
 			}
 			Dispose();
@@ -345,7 +387,7 @@ namespace DayZObfuscatorConsoleApp
 
 		static string FormatTokenLocation(LexerTokenBase token, bool atEndOfToken = false)
 		{
-			return $"line {token.Line} at position {(atEndOfToken ? token.IndexOnLine : token.IndexOnLine + token.Token.Length)}";
+			return $"line {token.Line + 1} at position {((atEndOfToken ? token.IndexOnLine : token.IndexOnLine + token.Token.Length) + 1)}";
 		}
 
 		void Build(BuildArgs args)
@@ -366,7 +408,10 @@ namespace DayZObfuscatorConsoleApp
 			{
 				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(BuilderArgs.TargetDirectory, BuilderArgs.IncludeHiddenDirectories, BuilderArgs.IncludeHiddenFiles);
 				foreach (var descriptor in descriptors)
+				{
+					FilterPBOFiles(descriptor);
 					BuildPBO(descriptor, packer);
+				}
 			}
 			else
 			{
@@ -376,7 +421,7 @@ namespace DayZObfuscatorConsoleApp
 					Logger?.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
 					return;
 				}
-
+				FilterPBOFiles(descriptor);
 				BuildPBO(descriptor, packer);
 			}
 			Dispose();
