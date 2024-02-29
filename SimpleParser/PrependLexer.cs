@@ -53,8 +53,10 @@ namespace DayZObfuscatorModel.Parser
 		{
 			if (_Consumed)
 				return _Lexer.Peek(count);
-			else
+			else if (count > 1)
 				return _Lexer.Peek(count - 1).Prepend(_Prepend);
+			else
+				return Enumerable.Repeat(_Prepend, 1);
 		}
 	}
 }
