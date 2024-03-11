@@ -4,8 +4,13 @@ namespace DayZObfuscatorModel.PBO.Packer
 {
 	public class PBOWriter : BinaryWriter
 	{
-		public PBOWriter(Stream outStream) : base(outStream)
+		public PBOWriter(Stream outStream) : this(outStream, false) {}
+
+		public PBOWriter(Stream outStream, bool leaveOpen) : base(outStream, Encoding.ASCII, leaveOpen) {}
+
+		public void WriteBytes(string value)
 		{
+			base.Write(Encoding.ASCII.GetBytes(value));
 		}
 
 		override public void Write(string value)

@@ -30,6 +30,9 @@ namespace DayZObfuscatorModel.PBO.Config
 					(obj is IList<PBOConfigValueBase> otherList && Equals(otherList));
 		}
 
+		public override bool Equals(PBOConfigValueBase? other) =>
+			Equals(other as PBOConfigArray);
+
 		public bool Equals(PBOConfigArray? other)
 		{
 			return Equals(other?.Value);

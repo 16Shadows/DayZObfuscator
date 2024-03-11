@@ -20,80 +20,63 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 
 		protected ILexer<ConfigToken> ResolveRootScope(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
 		{
-			ConfigToken replacementToken;
 			switch (error.Message)
 			{
 				case ConfigParserErrors.UnexpectedToken:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Dummy", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Dummy", 0, 0, 0));
 				default:
 					throw new ArgumentException($"Error {error} is not supported by the resolver for RootScope state.");
 			}
-			return ResolveBySkipReplaceInject(lexer, parser, state, replacementToken);
 		}
 
 		protected ILexer<ConfigToken> ResolveClass(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
 		{
-			ConfigToken replacementToken;
 			switch (error.Message)
 			{
 				case ConfigParserErrors.ExpectedClassKeyword:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Keyword_Class, "class", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Keyword_Class, "class", 0, 0, 0));
 				case ConfigParserErrors.UnexpectedToken:
 				case ConfigParserErrors.ExpectedIdentifier:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Dummy", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Dummy", 0, 0, 0));
 				case ConfigParserErrors.ExpectedLeftCurlyBracket:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Symbol_CurlyBracketLeft, "{", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Symbol_CurlyBracketLeft, "{", 0, 0, 0));
 				case ConfigParserErrors.ExpectedRightCurlyBracket:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight, "}", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight, "}", 0, 0, 0));
 				case ConfigParserErrors.ExpectedSemicolumn:
-					return lexer.Prepend(new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Semicolumn, ";", 0, 0, 0));
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Semicolumn, ";", 0, 0, 0));
 				default:
 					throw new ArgumentException($"Error {error} is not supported by the resolver for Class state.");
 			}
-			return ResolveBySkipReplaceInject(lexer, parser, state, replacementToken);
 		}
 
 		protected ILexer<ConfigToken> ResolveArrayExpression(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
 		{
-			ConfigToken replacementToken;
 			switch (error.Message)
 			{
 				case ConfigParserErrors.ExpectedArrayIdentifier:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Dummy[]", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Dummy[]", 0, 0, 0));
 				case ConfigParserErrors.ExpectedOperator:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Assign, "=", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Assign, "=", 0, 0, 0));
 				case ConfigParserErrors.ExpectedSemicolumn:
-					return lexer.Prepend(new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Semicolumn, ";", 0, 0, 0));
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Semicolumn, ";", 0, 0, 0));
 				default:
 					throw new ArgumentException($"Error {error} is not supported by the resolver for ArrayExpression state.");
 			}
-			return ResolveBySkipReplaceInject(lexer, parser, state, replacementToken);
 		}
 
 		protected ILexer<ConfigToken> ResolveVariableExpression(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
 		{
-			ConfigToken replacementToken;
 			switch (error.Message)
 			{
 				case ConfigParserErrors.ExpectedIdentifier:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Dummy", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Identifier, "Dummy", 0, 0, 0));
 				case ConfigParserErrors.ExpectedOperator:
-					replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Assign, "=", 0, 0, 0);
-					break;
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Assign, "=", 0, 0, 0));
 				case ConfigParserErrors.ExpectedSemicolumn:
-					return lexer.Prepend(new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Semicolumn, ";", 0, 0, 0));
+					return ResolveByInjectReplaceSkip(lexer, parser, state, new ConfigToken(ConfigToken.ConfigTokenType.Symbol_Semicolumn, ";", 0, 0, 0));
 				default:
 					throw new ArgumentException($"Error {error} is not supported by the resolver for VariableExpression state.");
 			}
-			return ResolveBySkipReplaceInject(lexer, parser, state, replacementToken);
 		}
 
 		protected ILexer<ConfigToken> ResolveArray(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
@@ -144,7 +127,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			else if (error.Message == ConfigParserErrors.UnexpectedToken)
 			{
 				var replacementToken = new ConfigToken(ConfigToken.ConfigTokenType.Number, "0", 0, 0, 0);
-				return ResolveBySkipReplaceInject(lexer, parser, state, replacementToken);
+				return ResolveByReplaceInjectSkip(lexer, parser, state, replacementToken);
 			}
 			else
 				throw new ArgumentException($"Error {error} is not supported by the resolver for Value state.");

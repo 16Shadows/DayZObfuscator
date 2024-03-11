@@ -5,6 +5,7 @@ namespace DayZObfuscatorModel.PBO.Config
 {
 	public class PBOConfigValueString : PBOConfigVariableValue, IEquatable<PBOConfigValueString>, IEquatable<string>
 	{
+		private static readonly Dictionary<string, string> _EscapeTable = new Dictionary<string, string>() { {"\"", "\\\""} };
 		private string _Value;
 
 		public string Value { get => _Value; set => _Value = value ?? throw new ArgumentNullException(nameof(value)); }
@@ -16,7 +17,7 @@ namespace DayZObfuscatorModel.PBO.Config
 
 		public override string ToString()
 		{
-			return $"\"{Value.Escape()}\"";
+			return $"\"{Value.Escape(_EscapeTable)}\"";
 		}
 
 		public override bool Equals(object? obj)
@@ -29,6 +30,9 @@ namespace DayZObfuscatorModel.PBO.Config
 		{
 			return HashCode.Combine(Value);
 		}
+
+		public override bool Equals(PBOConfigValueBase? other) =>
+			Equals(other as PBOConfigValueString);
 
 		public bool Equals(PBOConfigValueString? other)
 		{

@@ -28,6 +28,9 @@ namespace DayZObfuscatorModel.PBO.Config
 			return other?.Value == Value;
 		}
 
+		public override bool Equals(PBOConfigValueBase? other) =>
+			Equals(other as PBOConfigValueFloat);
+
 		public bool Equals(float other)
 		{
 			return Value == other;

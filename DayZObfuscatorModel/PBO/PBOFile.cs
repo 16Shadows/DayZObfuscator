@@ -44,7 +44,7 @@ namespace DayZObfuscatorModel.PBO
 		/// Full path the the file within the PBO, as it will be written into the header.
 		/// Composed of <see cref="PathInPBO"/> and <see cref="Filename"/>.
 		/// </summary>
-		public string FullPathInPBO => $"{(PathInPBO?.Length > 0 ? $"{PathInPBO}/" : "")}{Filename}";
+		public string FullPathInPBO => $"{(PathInPBO?.Length > 0 ? $"{PathInPBO}\\" : "")}{Filename}";
 
 		/// <summary>
 		/// Mime type if this file. Default constants are available in <see cref="MimeTypes"/>.
@@ -67,35 +67,126 @@ namespace DayZObfuscatorModel.PBO
 		/// Size of the file in the PBO.
 		/// </summary>
 		public uint DataSize { get; set; }
-		
+
+		private readonly List<Func<Stream?, Stream?>> _FileContentMutations = new List<Func<Stream?, Stream?>>();
+		private readonly List<Stream?> _FileContentStreams = new List<Stream?>();
+		private Stream? _FileContent;
+		private Stream? _FinalizedFileContent;
+
 		/// <summary>
-		/// The content of this file which will be written to the pbo when the file will be packed.
-		/// The value is only used during the packing process and is initialy set by <see cref="PBOPacker"/>.
-		/// The value may be null outside of pbo packing.
+		/// The initial content which will be mutated.
 		/// </summary>
-		public Stream? FileContent { get; set; }
+		public Stream? FileContentSource
+		{
+			set
+			{
+				DisposeFileContent();
+				_FileContent = value;
+			}
+		}
+
+		/// <summary>
+		/// The contents of the file after all mutations have been applied.
+		/// </summary>
+		public Stream? FileContent
+		{
+			get
+			{
+				if (_FinalizedFileContent != null)
+					return _FinalizedFileContent;
+				
+				if (_FileContent == null)
+					return null;
+
+				_FileContent.Seek(0, SeekOrigin.Begin);
+
+				Stream? output = _FileContent;
+				foreach (Func<Stream?, Stream?> mutate in  _FileContentMutations)
+					_FileContentStreams.Add(output = mutate(output));
+
+				_FinalizedFileContent = output;
+
+				return output;
+			}
+		}
+
 
 		/// <summary>
 		/// If this is set to true, the FileContent is assumed to be no longer modifiable.
 		/// For example, it may be caused by compression.
 		/// </summary>
-		public bool FileContentSealed { get; set; }
+		public bool FileContentSealed { get; private set; }
 
 
 		public PBOFile(string pboPath)
 		{
 			ArgumentNullException.ThrowIfNull(pboPath, nameof(pboPath));
 
-			_Filename = Path.GetFileName(pboPath) ?? "";
+			_Filename = (Path.GetFileName(pboPath) ?? "").ToLower();
 
 			if (Path.IsPathRooted(pboPath))
 				throw new ArgumentException($"{nameof(pboPath)} ({pboPath}) should be a valid relative non-rooted path to a file.");
 
-			_PathInPBO = Path.GetDirectoryName(pboPath) ?? "";
+			_PathInPBO = Path.GetDirectoryName(pboPath)?.Replace('/', '\\').Trim().Trim('\\').ToLower() ?? "";
 
 			TimeStamp = 0;
 			Offset = 0;
 			MimeType = MimeTypes.Uncompressed;
+		}
+
+		/// <summary>
+		/// Ensures that the properties of this file are up to date
+		/// </summary>
+		public void ValidateProperties()
+		{
+			//Just make sure that mutations have been applied at least once
+			_ = FileContent;
+		}
+
+		/// <summary>
+		/// Adds a mutation to the content which will affect the content written to PBO
+		/// </summary>
+		/// <param name="mutator">
+		/// The function to generate mutation.
+		/// It takes a single argument - Stream (which may be null) - content at the current stage (with all previous mutations applied).
+		/// It should return a Stream containing the mutated content.
+		/// </param>
+		/// <param name="sealContent">If set to true, sets <see cref="FileContentSealed"/> to true and prevents additiong of new mutations.</param>
+		/// <exception cref="InvalidOperationException">Is thrown if <see cref="=FileContentSealed"/> is set to true.</exception>
+		public void AddContentMutation(Func<Stream?, Stream?> mutator, bool sealContent)
+		{
+			if (FileContentSealed)
+				throw new InvalidOperationException("File content is sealed, no mutations can be added.");
+
+			_FileContentMutations.Add(mutator);
+
+			FileContentSealed = sealContent;
+		}
+
+		/// <summary>
+		/// Removes all mutations and sets <see cref="FileContentSealed"/> to false.
+		/// </summary>
+		public void ClearMutations()
+		{
+			DisposeFileContent();
+			_FileContentMutations.Clear();
+			FileContentSealed = false;
+		}
+
+		/// <summary>
+		/// Resets <see cref="FileContent"/>.
+		/// </summary>
+		public void DisposeFileContent()
+		{
+			_FileContent?.Dispose();
+			_FinalizedFileContent?.Dispose();
+
+			_FinalizedFileContent = null;
+
+			foreach (Stream? stream in _FileContentStreams)
+				stream?.Dispose();
+
+			_FileContentStreams.Clear();
 		}
 	}
 }

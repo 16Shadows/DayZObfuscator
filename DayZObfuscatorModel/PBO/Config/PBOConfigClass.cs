@@ -18,6 +18,8 @@ namespace DayZObfuscatorModel.PBO.Config
 		public string Identifier { get; set; }
 		public string? Parent { get; set; }
 
+		public PBOConfigClass(string identifier) : this(identifier, null) { }
+
 		public PBOConfigClass(string identifier, string? parent)
 		{
 			Identifier = identifier;
