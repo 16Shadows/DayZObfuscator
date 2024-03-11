@@ -165,7 +165,7 @@ namespace SimpleParser
 				parser.TryParseFromState(previewLexer, state.CurrentState, state.PreviousStates, _RouteBackResolver);
 			}
 			catch (ErrorEncounteredException) {}
-			tokensConsumedOnReplace = previewLexer.ConsumedCount - 1; //Account for the 1 token we replaced (it is supposed to be consumed)
+			tokensConsumedOnReplace = previewLexer.ConsumedCount;
 
 			//Try parsing with a token injected in from of the next one
 			previewLexer = BuildLexerWithInjectedToken(lexer, state, newToken);
@@ -174,7 +174,7 @@ namespace SimpleParser
 				parser.TryParseFromState(previewLexer, state.CurrentState, state.PreviousStates, _RouteBackResolver);
 			}
 			catch (ErrorEncounteredException) {}
-			tokensConsumedOnInsert = previewLexer.ConsumedCount - 1; //Account for the 1 token we injected (it is supposed to be consumed)
+			tokensConsumedOnInsert = previewLexer.ConsumedCount;
 
 			int maxTokens = Math.Max(Math.Max(tokensConsumedOnInsert, tokensConsumedOnReplace), tokensConsumedOnRemoval);
 
