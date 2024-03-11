@@ -44,7 +44,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 
 			Assert.AreEqual("Test", config.Classes.First().Identifier);
 			
-			Assert.AreEqual(5, config.Classes.First().Expressions.Count);
+			Assert.AreEqual(4, config.Classes.First().Expressions.Count);
 			Assert.AreEqual(1, config.Classes.First().Variables.Count());
 			Assert.AreEqual(3, config.Classes.First().Arrays.Count());
 			Assert.AreEqual(1, config.Classes.First().Classes.Count());
@@ -69,7 +69,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 			Assert.AreEqual(0, config.Classes.First().Classes.First().Classes.Count());
 
 			Assert.AreEqual("var", config.Classes.First().Classes.First().Variables.First().Identifier);
-			Assert.AreEqual(5, config.Classes.First().Classes.First().Variables.First().Value);
+			Assert.AreEqual( 5, (config.Classes.First().Classes.First().Variables.First().Value as PBOConfigValueInt)?.Value);
 		}
 
 		[TestMethod()]

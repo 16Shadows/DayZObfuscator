@@ -54,11 +54,12 @@ namespace DayZObfuscatorModel.Analyzers.Tests
 
 			File.WriteAllText("ProjectFolderAnalyzer_Tests/LoadPBO_Test/SuicideButton/5_Mission/mission.c", script);
 
-			List<PBODescriptor> pbos = ProjectFolderAnalyzer.Analyze("ProjectFolderAnalyzer_Tests/LoadPBO_Test").ToList();
+			PBODescriptor? pbo = ProjectFolderAnalyzer.LoadPBO("ProjectFolderAnalyzer_Tests/LoadPBO_Test/SuicideButton");
 
-			Assert.AreEqual(1, pbos.Count);
-			Assert.AreEqual(Path.GetFullPath("ProjectFolderAnalyzer_Tests/LoadPBO_Test/SuicideButton"), pbos[0].DirectoryPath);
-			Assert.AreEqual(1, pbos[0].Files.Count);
+			Assert.IsNotNull(pbo);
+			Assert.AreEqual(1, pbo.Configs.Count);
+			Assert.AreEqual(Path.GetFullPath("ProjectFolderAnalyzer_Tests/LoadPBO_Test/SuicideButton"), pbo.DirectoryPath);
+			Assert.AreEqual(2, pbo.Files.Count);
 		}
 
 		[TestMethod()]
@@ -103,10 +104,11 @@ namespace DayZObfuscatorModel.Analyzers.Tests
 
 			File.WriteAllText("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton/5_Mission/mission.c", script);
 
-			List<PBODescriptor> pbos = ProjectFolderAnalyzer.Analyze("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test").ToList();
+			PBODescriptor? pbo = ProjectFolderAnalyzer.LoadPBO("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton");
 
-			Assert.AreEqual(1, pbos.Count);
-			Assert.AreEqual(Path.GetFullPath("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton"), pbos[0].DirectoryPath);
+			Assert.IsNotNull(pbo);
+			Assert.AreEqual(1, pbo.Configs.Count);
+			Assert.AreEqual(Path.GetFullPath("ProjectFolderAnalyzer_Tests/Analyze_SingleProject_Test/SuicideButton"), pbo.DirectoryPath);
 		}
 
 		[TestMethod()]
@@ -191,11 +193,11 @@ namespace DayZObfuscatorModel.Analyzers.Tests
 				File.WriteAllText("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton2/5_Mission/mission.c", script);
 			}
 
-			List<PBODescriptor> pbos = ProjectFolderAnalyzer.Analyze("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test").ToList();
+			PBODescriptor? pbos = ProjectFolderAnalyzer.LoadPBO("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test");
 
-			Assert.AreEqual(2, pbos.Count);
-			Assert.IsTrue(pbos.Any(x => x.DirectoryPath == Path.GetFullPath("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton")));
-			Assert.IsTrue(pbos.Any(x => x.DirectoryPath == Path.GetFullPath("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test/SuicideButton2")));
+			Assert.IsNotNull(pbos);
+			Assert.AreEqual(2, pbos.Configs.Count);
+			Assert.IsTrue(pbos.DirectoryPath == Path.GetFullPath("ProjectFolderAnalyzer_Tests/Analyze_MultiProject_Test"));
 		}
 	}
 }
