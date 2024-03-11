@@ -20,9 +20,6 @@ namespace DayZObfuscatorConsoleApp
 
 			public string TargetDirectory { get; set; }
 
-			[Option('r', "recursive", Default = false, HelpText = "If this flag is set, the command will be applied to all possible PBOs in the folder", Required = false)]
-			public bool Recursive { get; set; }
-
 			[Option("hidden-files", Default = false, HelpText = "If this flag is set, hidden files will be included in the PBO", Required = false)]
 			public bool IncludeHiddenFiles { get; set; }
 
@@ -277,29 +274,12 @@ namespace DayZObfuscatorConsoleApp
 				Logger?.WriteLine($"'{AnalyzerArgs.TargetDirectory}' is not a valid directory.");
 				return;
 			}
+			
+			PBODescriptor descriptor = ProjectFolderAnalyzer.LoadPBO(AnalyzerArgs.TargetDirectory, AnalyzerArgs.IncludeHiddenDirectories, AnalyzerArgs.IncludeHiddenFiles);
 
-			if (AnalyzerArgs.Recursive)
-			{
-				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(AnalyzerArgs.TargetDirectory, AnalyzerArgs.IncludeHiddenDirectories, AnalyzerArgs.IncludeHiddenFiles);
-				foreach (var descriptor in descriptors)
-				{
-					FilterPBOFiles(descriptor);
-					OutputPBOInfo(descriptor);
-					Logger?.WriteLine("-------");
-				}
-			}
-			else
-			{
-				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(AnalyzerArgs.TargetDirectory, AnalyzerArgs.IncludeHiddenDirectories, AnalyzerArgs.IncludeHiddenFiles);
-				if (descriptor == null)
-				{
-					Logger?.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
-					return;
-				}
-
-				FilterPBOFiles(descriptor);
-				OutputPBOInfo(descriptor);
-			}
+			FilterPBOFiles(descriptor);
+			OutputPBOInfo(descriptor);
+			
 			Dispose();
 		}
 
@@ -312,15 +292,18 @@ namespace DayZObfuscatorConsoleApp
 			
 			if (AnalyzerArgs.DetectConfigErrors)
 			{
-				Logger?.WriteLine();
-				if (descriptor.Config.Success)
-					Logger?.WriteLine("No errors were detected in the config file.");
-				else
+				foreach (PBOConfigDescriptor config in descriptor.Configs)
 				{
-					Logger?.WriteLine("Errors in config.cpp:");
-					foreach (var error in descriptor.Config.Errors)
-						Logger?.WriteLine(FormatConfigError(error));
-				}	
+					Logger?.WriteLine();
+					Logger?.WriteLine($"Found a config at '{config.PathInPBO}/config.cpp'.");
+					if (config.IsValid)
+						Logger?.WriteLine("No errors were detected in the config file.");
+					else
+					{
+						foreach (var error in config.Errors)
+							Logger?.WriteLine(FormatConfigError(error));
+					}
+				}
 			}
 
 			if (AnalyzerArgs.OutputFilesList)
@@ -404,26 +387,11 @@ namespace DayZObfuscatorConsoleApp
 			foreach (PBOPackerComponent comp in Components)
 				packer.Components.Add(comp);
 
-			if (BuilderArgs.Recursive)
-			{
-				IEnumerable<PBODescriptor> descriptors = ProjectFolderAnalyzer.Analyze(BuilderArgs.TargetDirectory, BuilderArgs.IncludeHiddenDirectories, BuilderArgs.IncludeHiddenFiles);
-				foreach (var descriptor in descriptors)
-				{
-					FilterPBOFiles(descriptor);
-					BuildPBO(descriptor, packer);
-				}
-			}
-			else
-			{
-				PBODescriptor? descriptor = ProjectFolderAnalyzer.LoadPBO(BuilderArgs.TargetDirectory, BuilderArgs.IncludeHiddenDirectories, BuilderArgs.IncludeHiddenFiles);
-				if (descriptor == null)
-				{
-					Logger?.WriteLine("No PBO found directly in the target directory. Try using -recursive.");
-					return;
-				}
-				FilterPBOFiles(descriptor);
-				BuildPBO(descriptor, packer);
-			}
+			PBODescriptor descriptor = ProjectFolderAnalyzer.LoadPBO(BuilderArgs.TargetDirectory, BuilderArgs.IncludeHiddenDirectories, BuilderArgs.IncludeHiddenFiles);
+
+			FilterPBOFiles(descriptor);
+			BuildPBO(descriptor, packer);
+
 			Dispose();
 		}
 
@@ -431,11 +399,14 @@ namespace DayZObfuscatorConsoleApp
 		{
 			ArgumentNullException.ThrowIfNull(BuilderArgs);
 
-			if (descriptor.Config.Errors.Any())
+			if (descriptor.Configs.Any(x => x.Errors.Any()))
 			{
-				Logger?.WriteLine("Errors in config.cpp:");
-				foreach (var error in descriptor.Config.Errors)
-					Logger?.WriteLine(FormatConfigError(error));
+				foreach (PBOConfigDescriptor config in descriptor.Configs.Where(x => x.Errors.Any()))
+				{
+					Logger?.WriteLine($"Errors in config at '{config.PathInPBO}/config.cpp'.");
+					foreach (var error in config.Errors)
+						Logger?.WriteLine(FormatConfigError(error));
+				}
 
 				if (!BuilderArgs.ErrorsAsWarnings)
 				{
