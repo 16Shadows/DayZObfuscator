@@ -8,9 +8,9 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 	[TestClass()]
 	public class ConfigParser_Tests
 	{
-		class TestErrorResolver : IParserErrorResolver<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates>
+		class TestErrorResolver : IParserErrorResolver<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates>
 		{
-			public ILexer<ConfigToken> Resolve(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> e)
+			public ILexer<ConfigToken> Resolve(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors, ConfigToken> e)
 			{
 				throw new InvalidSyntaxException($"Syntax error occured with token '{state.CurrentToken}'", state.CurrentToken.Index, state.CurrentToken.Line, state.CurrentToken.IndexOnLine);
 			}
@@ -33,7 +33,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 
 			ConfigParser parser = new ConfigParser();
 
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new TestErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new TestErrorResolver());
 			PBOConfig config = result.Result;
 
 			Assert.AreEqual(0, result.Errors.Count());
@@ -91,7 +91,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 
 			Assert.ThrowsException<InvalidSyntaxException>(() =>
 			{
-				ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new TestErrorResolver());
+				ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new TestErrorResolver());
 			});
 		}
 
@@ -104,7 +104,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "};";
 			 
 			ConfigParser parser = new ConfigParser();
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(2, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.BrokenString, result.Errors.First().Message);
@@ -120,7 +120,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "};";
 			 
 			ConfigParser parser = new ConfigParser();
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.InvalidNumber, result.Errors.First().Message);
@@ -135,7 +135,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "};";
 			 
 			ConfigParser parser = new ConfigParser();
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.UnexpectedToken, result.Errors.First().Message);
@@ -150,7 +150,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "};";
 			 
 			ConfigParser parser = new ConfigParser();
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.ExpectedLeftCurlyBracket, result.Errors.First().Message);
@@ -165,7 +165,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "};";
 			 
 			ConfigParser parser = new ConfigParser();
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.ExpectedCommaOrRightCurlyBracket, result.Errors.First().Message);
@@ -180,7 +180,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "};";
 			 
 			ConfigParser parser = new ConfigParser();
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreEqual(1, result.Errors.Count());
 			Assert.AreEqual(ConfigParserErrors.ExpectedCommaOrRightCurlyBracket, result.Errors.First().Message);
@@ -195,7 +195,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser.Tests
 										 "};";
 			 
 			ConfigParser parser = new ConfigParser();
-			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
+			ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> result = parser.Parse(new ConfigLexer(document), new ConfigParserErrorResolver());
 
 			Assert.AreNotEqual(0, result.Errors.Count());
 		}

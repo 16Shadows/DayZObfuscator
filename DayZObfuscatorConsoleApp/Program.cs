@@ -4,6 +4,7 @@ using DayZObfuscatorModel.Analyzers;
 using DayZObfuscatorModel.Parser;
 using DayZObfuscatorModel.PBO;
 using DayZObfuscatorModel.PBO.Config.Parser;
+using DayZObfuscatorModel.PBO.Config.Parser.Lexer;
 using DayZObfuscatorModel.PBO.Packer;
 using Newtonsoft.Json;
 using System.Reflection;
@@ -337,7 +338,7 @@ namespace DayZObfuscatorConsoleApp
 				return file.FullPathInPBO;
 		}
 
-		static string FormatConfigError(ParserErrorBase<ConfigParserErrors> error)
+		static string FormatConfigError(ParserErrorBase<ConfigParserErrors, ConfigToken> error)
 		{
 			switch (error.Message)
 			{

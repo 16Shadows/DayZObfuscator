@@ -4,7 +4,7 @@ using SimpleParser;
 
 namespace DayZObfuscatorModel.PBO.Config.Parser
 {
-	public class ConfigParserErrorResolver : ParserErrorResolverBase<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates>
+	public class ConfigParserErrorResolver : ParserErrorResolverBase<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates>
 	{
 		public ConfigParserErrorResolver() : base(IsEndOfDocument)
 		{
@@ -18,7 +18,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 
 		private static bool IsEndOfDocument(ConfigToken token) => token.TokenType == ConfigToken.ConfigTokenType.EndOfDocument;
 
-		protected ILexer<ConfigToken> ResolveRootScope(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
+		protected ILexer<ConfigToken> ResolveRootScope(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors, ConfigToken> error)
 		{
 			switch (error.Message)
 			{
@@ -29,7 +29,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 		}
 
-		protected ILexer<ConfigToken> ResolveClass(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
+		protected ILexer<ConfigToken> ResolveClass(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors, ConfigToken> error)
 		{
 			switch (error.Message)
 			{
@@ -49,7 +49,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 		}
 
-		protected ILexer<ConfigToken> ResolveArrayExpression(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
+		protected ILexer<ConfigToken> ResolveArrayExpression(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors, ConfigToken> error)
 		{
 			switch (error.Message)
 			{
@@ -64,7 +64,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 		}
 
-		protected ILexer<ConfigToken> ResolveVariableExpression(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
+		protected ILexer<ConfigToken> ResolveVariableExpression(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors, ConfigToken> error)
 		{
 			switch (error.Message)
 			{
@@ -79,7 +79,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 		}
 
-		protected ILexer<ConfigToken> ResolveArray(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
+		protected ILexer<ConfigToken> ResolveArray(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors, ConfigToken> error)
 		{
 			switch (error.Message)
 			{
@@ -102,7 +102,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 		}
 
-		protected ILexer<ConfigToken> ResolveValue(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors> error)
+		protected ILexer<ConfigToken> ResolveValue(ILexer<ConfigToken> lexer, IParser<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates> parser, ParserState<ConfigToken, ConfigParserStates> state, ParserErrorBase<ConfigParserErrors, ConfigToken> error)
 		{
 			if (error.Message == ConfigParserErrors.BrokenString)
 			{

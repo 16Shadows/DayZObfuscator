@@ -68,7 +68,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 			FileStream outputFile;
 			try
 			{
-				outputFile = new FileStream($"{outputDirectory}\\{prefix}.pbo", FileMode.Create);
+				outputFile = new FileStream(Path.Combine(outputDirectory, $"{prefix}.pbo"), FileMode.Create);
 			}
 			catch
 			{

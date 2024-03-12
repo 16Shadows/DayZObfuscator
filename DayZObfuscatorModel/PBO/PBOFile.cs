@@ -22,7 +22,7 @@ namespace DayZObfuscatorModel.PBO
 			set
 			{
 				ArgumentNullException.ThrowIfNull(value, nameof(Filename));
-				_Filename = value;
+				_Filename = value.ToLower();
 			}
 		}
 
@@ -36,7 +36,7 @@ namespace DayZObfuscatorModel.PBO
 			set
 			{
 				ArgumentNullException.ThrowIfNull(value, nameof(PathInPBO));
-				_PathInPBO = value;
+				_PathInPBO = value.Replace('/', '\\').Trim().Trim('\\').ToLower();
 			}
 		}
 
@@ -78,6 +78,7 @@ namespace DayZObfuscatorModel.PBO
 		/// </summary>
 		public Stream? FileContentSource
 		{
+			get => _FileContent;
 			set
 			{
 				DisposeFileContent();

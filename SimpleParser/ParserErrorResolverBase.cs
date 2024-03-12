@@ -27,7 +27,7 @@ namespace SimpleParser
 			EndOfDocumentDetector = endOfDocumentDetector ?? throw new ArgumentNullException(nameof(endOfDocumentDetector));
 		}
 
-		protected void AddErrorResolver(ParserStates state,  ErrorResolverType errorResolverType) => _Resolvers.Add(state, errorResolverType);
+		protected void AddErrorResolver(ParserStates state,  ErrorResolverType errorResolver) => _Resolvers.Add(state, errorResolver);
 
 		public ILexer<LexerToken> Resolve(ILexer<LexerToken> lexer, IParser<LexerToken, ParserResult, ParserError, ParserStates> parser, ParserState<LexerToken, ParserStates> state, ParserError error)
 		{

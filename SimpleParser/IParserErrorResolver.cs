@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DayZObfuscatorModel.Parser
+﻿namespace DayZObfuscatorModel.Parser
 {
 	/// <summary>
 	/// An interface describing an algorithm used to resolve errors during parsing process.
