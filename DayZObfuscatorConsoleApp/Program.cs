@@ -37,14 +37,14 @@ namespace DayZObfuscatorConsoleApp
 			public IEnumerable<string>? ExclusionPatterns { get; set; }
 		}
 
-		[Verb("analyze", HelpText = "Detect all possible PBOs in the target folder")]
+		[Verb("analyze", HelpText = "Detect PBO in the target folder and output its info.")]
 		class AnalyzeArgs : BaseArguments
 		{
 			[Option('e', "config-errors", Default = false, HelpText = "If this flag is set, a list of all errors found in the config file will be output.")]
 			public bool DetectConfigErrors { get; set; }
 
 			[Option('f', "files-list", Default = false, HelpText = "If this flag is set, a list of all files which are part of the PBO will be output.")]
-			public bool OutputFilesList { get; set; }
+			public bool OutputFilesList { get; set; }	
 
 			[Option('d', "detailed-files-list", Default = false, HelpText = "If this flag is set and -f is set, the file list will include extra data.")]
 			public bool DetailedFileList { get; set; }
@@ -53,7 +53,7 @@ namespace DayZObfuscatorConsoleApp
 		[Verb("build", HelpText = "Build pbo(s) in the target folder")]
 		class BuildArgs : BaseArguments
 		{
-			[Option('o', "output", Default = "", HelpText = "Path to output directory", MetaValue = "path", Required = false)]
+			[Option('o', "output", Default = ".", HelpText = "Path to output directory", MetaValue = "path", Required = false)]
 			public string OutputDirectory { get; set; }
 			
 			[Option('w', "warn", Default = false, HelpText = "All errors which can be recovered from will be treated as warnings", Required = false)]
@@ -128,8 +128,8 @@ namespace DayZObfuscatorConsoleApp
 				 * Replace wildcards with pattern matching anything
 				 */
 				BaseArgs.ExclusionPatterns = BaseArgs.ExclusionPatterns.Select(x => Regex.Escape(x.Trim())
-														 .Replace(Regex.Escape("/"), "[/\\]")
-														 .Replace(Regex.Escape("\\"), "[/\\]")
+														 .Replace(Regex.Escape("/"), "[/\\\\]")
+														 .Replace(Regex.Escape("\\"), "[/\\\\]")
 														 .Replace(Regex.Escape("*"), ".+")).ToArray();
 			}
 		}
@@ -296,7 +296,7 @@ namespace DayZObfuscatorConsoleApp
 				foreach (PBOConfigDescriptor config in descriptor.Configs)
 				{
 					Logger?.WriteLine();
-					Logger?.WriteLine($"Found a config at '{config.PathInPBO}/config.cpp'.");
+					Logger?.WriteLine($"Found a config at '{config.FullPathInPBO}'.");
 					if (config.IsValid)
 						Logger?.WriteLine("No errors were detected in the config file.");
 					else

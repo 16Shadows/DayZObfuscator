@@ -5,15 +5,15 @@ using DayZObfuscatorModel.PBO.Config.Parser.Lexer;
 
 namespace DayZObfuscatorModel.PBO
 {
-	public class PBOConfigDescriptor : PBOFile
+	public class PBOConfigDescriptor : PBODriveFile
 	{
 		public PBOConfig Config { get; }
 
 		public IEnumerable<ParserErrorBase<ConfigParserErrors, ConfigToken>>	Errors { get; }
 
-		public bool IsValid => Errors.Any();
+		public bool IsValid => !Errors.Any();
 
-		public PBOConfigDescriptor(string pathInPBO, ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> parsedConfig) : base(pathInPBO)
+		public PBOConfigDescriptor(string absolutePath, string pathInPBO, ParseResult<PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>> parsedConfig) : base(absolutePath, pathInPBO)
 		{
 			ArgumentNullException.ThrowIfNull(parsedConfig);
 

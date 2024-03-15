@@ -1,5 +1,4 @@
-﻿using CSToolbox.Extensions;
-using DayZObfuscatorModel.PBO.Packer;
+﻿using DayZObfuscatorModel.PBO.Packer;
 
 namespace DayZObfuscatorModel.PBO.Config
 {

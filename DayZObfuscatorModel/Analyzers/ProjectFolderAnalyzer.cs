@@ -24,6 +24,7 @@ namespace DayZObfuscatorModel.Analyzers
 										pathToRoot,
 										files.Where(x => x.Filename.ToLower() == "config.cpp").Select(x => 
 											new PBOConfigDescriptor(
+												x.AbsolutePath,
 												x.FullPathInPBO,
 												_ConfigParser.Parse(
 														new ConfigLexer( new FileInputReader(x.AbsolutePath) ),

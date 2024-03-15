@@ -35,7 +35,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 		public PBOPackerErrors Pack(PBODescriptor pbo, string outputDirectory)
 		{
 			ArgumentNullException.ThrowIfNull(pbo);
-			ArgumentNullException.ThrowIfNull(outputDirectory);
+			ArgumentException.ThrowIfNullOrEmpty(outputDirectory);
 
 			Properties.Clear();
 
@@ -68,7 +68,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 			FileStream outputFile;
 			try
 			{
-				outputFile = new FileStream(Path.Combine(outputDirectory, $"{prefix}.pbo"), FileMode.Create);
+				outputFile = new FileStream(Path.Combine(outputDirectory, $"{prefix.Replace(Path.GetInvalidFileNameChars(), '_')}.pbo"), FileMode.Create);
 			}
 			catch
 			{
