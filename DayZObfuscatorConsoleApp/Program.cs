@@ -142,6 +142,7 @@ namespace DayZObfuscatorConsoleApp
 			Assembly? assembly;
 			foreach (ModuleConfiguration module in modules.Modules)
 			{
+				Logger?.WriteLine($"Loading module {module.ModuleName} from {module.AssemblyPath}...");
 				try
 				{
 					string fullPath = Path.GetFullPath(module.AssemblyPath);
@@ -179,6 +180,7 @@ namespace DayZObfuscatorConsoleApp
 										PopulateTypeFromDictionary(propsInstance, module.Properties);
 									
 									Components.Add((PBOPackerComponent)constructor.Invoke(new object?[] { propsInstance }));
+									Logger?.WriteLine($"Module {module.ModuleName} from {module.AssemblyPath} has been loaded.");
 									continue;
 								}
 							}
@@ -191,6 +193,7 @@ namespace DayZObfuscatorConsoleApp
 
 					if (constructor != null)
 					{
+						Logger?.WriteLine($"Module {module.ModuleName} from {module.AssemblyPath} has been loaded.");
 						Components.Add((PBOPackerComponent)constructor.Invoke(new object?[] { module.Properties }));
 						continue;
 					}
@@ -200,6 +203,7 @@ namespace DayZObfuscatorConsoleApp
 
 					if (constructor != null)
 					{
+						Logger?.WriteLine($"Module {module.ModuleName} from {module.AssemblyPath} has been loaded.");
 						Components.Add((PBOPackerComponent)constructor.Invoke(null));
 						continue;
 					}
@@ -407,6 +411,7 @@ namespace DayZObfuscatorConsoleApp
 					Logger?.WriteLine($"Errors in config at '{config.PathInPBO}/config.cpp'.");
 					foreach (var error in config.Errors)
 						Logger?.WriteLine(FormatConfigError(error));
+					Logger?.WriteLine();
 				}
 
 				if (!BuilderArgs.ErrorsAsWarnings)
@@ -418,7 +423,15 @@ namespace DayZObfuscatorConsoleApp
 					Logger?.WriteLine("-warn is set, ignoring config errors");
 			}
 
-			packer.Pack(descriptor, BuilderArgs.OutputDirectory);
+			switch (packer.Pack(descriptor, BuilderArgs.OutputDirectory))
+			{
+				case PBOPackerErrors.Success:
+					Logger?.WriteLine($"Packing completed.");
+					break;
+				case PBOPackerErrors.AccessToOutputDenied:
+					Logger?.WriteLine($"Failed to pack PBO - access to output file has been denied.");
+					break;
+			}
 		}
 	}
 }
