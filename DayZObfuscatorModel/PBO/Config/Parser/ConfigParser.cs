@@ -120,7 +120,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			keyword = lexer.Consume();
 
 			ConfigToken identifier = lexer.Peek();
-			if (identifier.TokenType != ConfigToken.ConfigTokenType.Identifier || identifier.Token.EndsWith("[]"))
+			if (identifier.TokenType != ConfigToken.ConfigTokenType.Identifier || identifier.TokenTrimmed.EndsWith("[]"))
 			{
 				var error = new ParserErrorBase<ConfigParserErrors, ConfigToken>(identifier, ConfigParserErrors.ExpectedIdentifier);
 				errors = errors.Append(error);
@@ -137,14 +137,14 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 			semicolumn = lexer.Consume();
 
-			return new ParseResult<PBOConfigExpressionDelete, ParserErrorBase<ConfigParserErrors, ConfigToken>>(new PBOConfigExpressionDelete(identifier.Token), true, errors);
+			return new ParseResult<PBOConfigExpressionDelete, ParserErrorBase<ConfigParserErrors, ConfigToken>>(new PBOConfigExpressionDelete(identifier.TokenTrimmed), true, errors);
 		}
 
 		protected ParseResult<PBOConfigExpressionBase, ParserErrorBase<ConfigParserErrors, ConfigToken>> ParseExpression(ILexer<ConfigToken> lexer, IEnumerable<ConfigParserStates> states, IParserErrorResolver<ConfigToken, PBOConfig, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigParserStates> errorResolver)
 		{
 			ConfigToken identifier = lexer.Peek();
 			
-			if (identifier.Token.EndsWith("[]"))
+			if (identifier.TokenTrimmed.EndsWith("[]"))
 				return ParseArrayExpression(lexer, states, errorResolver).WithResultAs<PBOConfigExpressionBase>(x => x);
 			else
 				return ParseVariableExpression(lexer, states, errorResolver);
@@ -156,7 +156,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			states = states.Append(ConfigParserStates.ArrayExpression);
 
 			ConfigToken identifier = lexer.Peek();
-			if (identifier.TokenType != ConfigToken.ConfigTokenType.Identifier || !identifier.Token.EndsWith("[]"))
+			if (identifier.TokenType != ConfigToken.ConfigTokenType.Identifier || !identifier.TokenTrimmed.EndsWith("[]"))
 			{
 				var error = new ParserErrorBase<ConfigParserErrors, ConfigToken>(identifier, ConfigParserErrors.ExpectedArrayIdentifier);
 				errors = errors.Append(error);
@@ -196,7 +196,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				errors = errors.Concat(array.Errors);
 			}
 			else
-				throw new InvalidSyntaxException($"Expected operator, found '{expressionToken.Token}'", expressionToken.Index, expressionToken.Line, expressionToken.IndexOnLine);
+				throw new InvalidSyntaxException($"Expected operator, found '{expressionToken.TokenTrimmed}'", expressionToken.Index, expressionToken.Line, expressionToken.IndexOnLine);
 
 			ConfigToken nextToken = lexer.Peek();
 			if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Semicolumn)
@@ -216,7 +216,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			states = states.Append(ConfigParserStates.VariableExpression);
 
 			ConfigToken identifier = lexer.Peek();
-			if (identifier.TokenType != ConfigToken.ConfigTokenType.Identifier || identifier.Token.EndsWith("[]"))
+			if (identifier.TokenType != ConfigToken.ConfigTokenType.Identifier || identifier.TokenTrimmed.EndsWith("[]"))
 			{
 				var error = new ParserErrorBase<ConfigParserErrors, ConfigToken>(identifier, ConfigParserErrors.ExpectedIdentifier);
 				errors = errors.Append(error);
@@ -243,7 +243,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				errors = errors.Concat(value.Errors);
 			}
 			else
-				throw new InvalidSyntaxException($"Expected expression symbol, found '{identifier.Token}'", identifier.Index, identifier.Line, identifier.IndexOnLine);
+				throw new InvalidSyntaxException($"Expected expression symbol, found '{identifier.TokenTrimmed}'", identifier.Index, identifier.Line, identifier.IndexOnLine);
 			
 			ConfigToken nextToken = lexer.Peek();
 			if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Semicolumn)
@@ -265,12 +265,12 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			ConfigToken nextToken = lexer.Peek();
 			if (nextToken.TokenType == ConfigToken.ConfigTokenType.Number)
 			{
-				if (int.TryParse(nextToken.Token, CultureInfo.InvariantCulture, out int intValue))
+				if (int.TryParse(nextToken.TokenTrimmed, CultureInfo.InvariantCulture, out int intValue))
 				{
 					_ = lexer.Consume();
 					return new ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigToken>(new PBOConfigValueInt(intValue), true, errors, nextToken);
 				}
-				else if (float.TryParse(nextToken.Token, CultureInfo.InvariantCulture, out float dValue))
+				else if (float.TryParse(nextToken.TokenTrimmed, CultureInfo.InvariantCulture, out float dValue))
 				{
 					_ = lexer.Consume();
 					return new ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigToken>( new PBOConfigValueFloat(dValue), true, errors, nextToken);
@@ -286,7 +286,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			else if (nextToken.TokenType == ConfigToken.ConfigTokenType.String)
 			{
 				lexer.Consume();
-				return new ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigToken>(new PBOConfigValueString(nextToken.Token[1..^1]), true, errors, nextToken);
+				return new ParseResultWithTokens<PBOConfigVariableValue, ParserErrorBase<ConfigParserErrors, ConfigToken>, ConfigToken>(new PBOConfigValueString(nextToken.TokenTrimmed[1..^1]), true, errors, nextToken);
 			}
 			else if (nextToken.TokenType == ConfigToken.ConfigTokenType.BrokenString)
 			{
@@ -409,7 +409,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			}
 			nextToken = lexer.Consume();
 			stateTokens.Add(nextToken);
-			string identifier = nextToken.Token;
+			string identifier = nextToken.TokenTrimmed;
 
 			string? parentClass = null;
 			nextToken = lexer.Peek();
@@ -426,7 +426,7 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 				}
 				nextToken = lexer.Consume();
 				stateTokens.Add(nextToken);
-				parentClass = nextToken.Token;
+				parentClass = nextToken.TokenTrimmed;
 			}
 			else if (nextToken.TokenType == ConfigToken.ConfigTokenType.Symbol_Semicolumn)
 			{
