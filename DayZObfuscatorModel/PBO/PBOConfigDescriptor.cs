@@ -9,7 +9,7 @@ namespace DayZObfuscatorModel.PBO
 	{
 		public PBOConfig Config { get; }
 
-		public IEnumerable<ParserErrorBase<ConfigParserErrors, ConfigToken>>	Errors { get; }
+		public IEnumerable<ParserErrorBase<ConfigParserErrors, ConfigToken>> Errors { get; }
 
 		public bool IsValid => !Errors.Any();
 

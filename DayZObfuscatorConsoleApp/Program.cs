@@ -83,7 +83,6 @@ namespace DayZObfuscatorConsoleApp
 		private readonly List<PBOPackerComponent> Components = new List<PBOPackerComponent>();
 		private static readonly Dictionary<string, Assembly> LoadedAssemblies = new Dictionary<string, Assembly>();
 
-
 		void Initialize(BaseArguments args)
 		{
 			ArgumentNullException.ThrowIfNull(args);
@@ -134,10 +133,11 @@ namespace DayZObfuscatorConsoleApp
 			}
 		}
 
-		private static readonly Type[] RawPropertiesConstructorTypes = new Type[] { typeof(Dictionary<string, object>) };
 		void LoadModules(ModuleConfigurationFile modules)
 		{
 			ArgumentNullException.ThrowIfNull(modules);
+
+			Type[] RawPropertiesConstructorTypes = new Type[] { typeof(Dictionary<string, object>) };
 
 			Assembly? assembly;
 			foreach (ModuleConfiguration module in modules.Modules)
@@ -373,7 +373,7 @@ namespace DayZObfuscatorConsoleApp
 			}
 		}
 
-		static string FormatTokenLocation(LexerTokenBase token, bool atEndOfToken = false)
+		static string FormatTokenLocation(ConfigToken token, bool atEndOfToken = false)
 		{
 			return $"line {token.Line + 1} at position {((atEndOfToken ? token.IndexOnLine : token.IndexOnLine + token.Token.Length) + 1)}";
 		}
@@ -408,7 +408,7 @@ namespace DayZObfuscatorConsoleApp
 			{
 				foreach (PBOConfigDescriptor config in descriptor.Configs.Where(x => x.Errors.Any()))
 				{
-					Logger?.WriteLine($"Errors in config at '{config.PathInPBO}/config.cpp'.");
+					Logger?.WriteLine($"Errors in config at '{config.FullPathInPBO}'.");
 					foreach (var error in config.Errors)
 						Logger?.WriteLine(FormatConfigError(error));
 					Logger?.WriteLine();

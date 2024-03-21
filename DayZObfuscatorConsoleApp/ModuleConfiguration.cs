@@ -1,5 +1,4 @@
-﻿using DayZObfuscatorModel.PBO.Packer;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace DayZObfuscatorConsoleApp
 {

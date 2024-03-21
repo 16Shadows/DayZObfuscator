@@ -2,15 +2,15 @@
 {
 	public class ConcatLexer<LexerToken> : ILexer<LexerToken> where LexerToken : LexerTokenBase
 	{
-		protected LexerToken[]? _Prepend { get; }
+		protected readonly LexerToken[]? _Prepend;
 		protected int _PrependConsumedCount;
 
-		protected LexerToken[]? _Append { get; }
+		protected readonly LexerToken[]? _Append;
 		protected int _AppendConsumedCount;
 
-		protected Func<LexerToken, bool>? _EndDetector { get; }
-		protected Func<LexerToken>? _EndGenerator { get; }
-		protected ILexer<LexerToken> _Lexer { get; }
+		protected readonly Func<LexerToken, bool>? _EndDetector;
+		protected readonly Func<LexerToken>? _EndGenerator;
+		protected readonly ILexer<LexerToken> _Lexer;
 
 		public ConcatLexer(ILexer<LexerToken> lexer, IEnumerable<LexerToken> prepend) : this(lexer, prepend ?? throw new ArgumentNullException(nameof(prepend)), null, null, null) {}
 		public ConcatLexer(ILexer<LexerToken> lexer, IEnumerable<LexerToken> append, Func<LexerToken, bool> endDetector) : this(lexer, null, append ?? throw new ArgumentNullException(nameof(append)), endDetector ?? throw new ArgumentNullException(nameof(endDetector)), null) {}

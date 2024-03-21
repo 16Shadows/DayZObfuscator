@@ -111,14 +111,6 @@ namespace DayZObfuscatorModel.PBO
 			}
 		}
 
-
-		/// <summary>
-		/// If this is set to true, the FileContent is assumed to be no longer modifiable.
-		/// For example, it may be caused by compression.
-		/// </summary>
-		public bool FileContentSealed { get; private set; }
-
-
 		public PBOFile(string pboPath)
 		{
 			ArgumentNullException.ThrowIfNull(pboPath, nameof(pboPath));
@@ -152,16 +144,10 @@ namespace DayZObfuscatorModel.PBO
 		/// It takes a single argument - Stream (which may be null) - content at the current stage (with all previous mutations applied).
 		/// It should return a Stream containing the mutated content.
 		/// </param>
-		/// <param name="sealContent">If set to true, sets <see cref="FileContentSealed"/> to true and prevents additiong of new mutations.</param>
 		/// <exception cref="InvalidOperationException">Is thrown if <see cref="=FileContentSealed"/> is set to true.</exception>
-		public void AddContentMutation(Func<Stream?, Stream?> mutator, bool sealContent)
+		public void AddContentMutation(Func<Stream?, Stream?> mutator)
 		{
-			if (FileContentSealed)
-				throw new InvalidOperationException("File content is sealed, no mutations can be added.");
-
 			_FileContentMutations.Add(mutator);
-
-			FileContentSealed = sealContent;
 		}
 
 		/// <summary>
@@ -171,7 +157,6 @@ namespace DayZObfuscatorModel.PBO
 		{
 			DisposeFileContent();
 			_FileContentMutations.Clear();
-			FileContentSealed = false;
 		}
 
 		/// <summary>
