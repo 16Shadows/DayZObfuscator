@@ -9,11 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests_DayZObfuscatorModel",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DayZObfuscatorConsoleApp", "DayZObfuscatorConsoleApp\DayZObfuscatorConsoleApp.csproj", "{17C7686C-FAB4-433D-BEA8-21033B241B69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DayZObfuscatorComponents", "DayZObfuscatorComponents\DayZObfuscatorComponents.csproj", "{2B2078B0-8444-4E56-B135-2D0E5B852493}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleParser", "SimpleParser\SimpleParser.csproj", "{6C978140-5FB8-4D15-8DFB-514252AFFB4E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSToolbox", "..\..\CSToolbox\CSToolbox\CSToolbox.csproj", "{3B2C67DC-F15A-4F5B-B59D-A83AD31DED9B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DayZObfuscatorComponents", "DayZObfuscatorComponents\DayZObfuscatorComponents.csproj", "{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,14 +47,6 @@ Global
 		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Release|x86.ActiveCfg = Release|Any CPU
 		{17C7686C-FAB4-433D-BEA8-21033B241B69}.Release|x86.Build.0 = Release|Any CPU
-		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Debug|x86.Build.0 = Debug|Any CPU
-		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Release|x86.ActiveCfg = Release|Any CPU
-		{2B2078B0-8444-4E56-B135-2D0E5B852493}.Release|x86.Build.0 = Release|Any CPU
 		{6C978140-5FB8-4D15-8DFB-514252AFFB4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C978140-5FB8-4D15-8DFB-514252AFFB4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C978140-5FB8-4D15-8DFB-514252AFFB4E}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -71,6 +63,14 @@ Global
 		{3B2C67DC-F15A-4F5B-B59D-A83AD31DED9B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3B2C67DC-F15A-4F5B-B59D-A83AD31DED9B}.Release|x86.ActiveCfg = Release|x86
 		{3B2C67DC-F15A-4F5B-B59D-A83AD31DED9B}.Release|x86.Build.0 = Release|x86
+		{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}.Debug|x86.Build.0 = Debug|Any CPU
+		{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}.Release|x86.ActiveCfg = Release|Any CPU
+		{1E2DF112-1CCE-40AD-8F22-2AF5293A005C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
