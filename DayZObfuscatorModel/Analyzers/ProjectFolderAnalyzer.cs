@@ -18,49 +18,50 @@ namespace DayZObfuscatorModel.Analyzers
 
 			pathToRoot = Path.GetFullPath(pathToRoot);
 
-			IEnumerable<PBODriveFile> files = EnumerateFiles(pathToRoot, "", null, includeHiddenDirectories, includeHiddenFiles);
-
-			var descriptor = new PBODescriptor(
-										pathToRoot,
-										files.Where(x => x.Filename.ToLower() == "config.cpp").Select(x => 
-											new PBOConfigDescriptor(
-												x.AbsolutePath,
-												x.FullPathInPBO,
-												_ConfigParser.Parse(
-														new ConfigLexer( new FileInputReader(x.AbsolutePath) ),
-														_ConfigErrorResolver
-													)
-											)
-										)
-								);
-
-			foreach (PBOFile file in files.Where(x => x.Filename.ToLower() != "config.cpp"))
-				descriptor.Files.Add(file);
-
-			foreach (PBOFile file in descriptor.Configs)
-				descriptor.Files.Add(file);
-
-			return descriptor;
+			return new PBODescriptor(
+				pathToRoot,
+				EnumerateFiles(pathToRoot, "", includeHiddenDirectories, includeHiddenFiles)
+			);
 		}
 
-		private static IEnumerable<PBODriveFile> EnumerateFiles(string path, string relativePath, HashSet<string>? dirFilter = null, bool includeHiddenDirectories = false, bool includeHiddenFiles = false)
+		private static IEnumerable<PBOFile> EnumerateFiles(string path, string relativePath, bool includeHiddenDirectories = false, bool includeHiddenFiles = false)
 		{
+			//Enumerate all files in this directory
 			IEnumerable<string> files = Directory.EnumerateFiles(path);
 			if (!includeHiddenFiles)
 				files = files.Where(x => !PathEx.HasAttribute(x, FileAttributes.Hidden));
 
-			foreach (string file in files)
-				yield return new PBODriveFile(Path.GetFullPath(file), relativePath + (relativePath.Length > 0 ? "/" : "") + Path.GetFileName(file));
+			IEnumerable<PBOFile> result = files.Select(x => InstantiateFileDescriptor(x, relativePath));
 
-			IEnumerable<string> subdirs = Directory.EnumerateDirectories(path).Where(x => dirFilter?.Contains(x) != true);
+			//Enumerate all files in child directories
+			IEnumerable<string> subdirs = Directory.EnumerateDirectories(path);
 			if (!includeHiddenDirectories)
 				subdirs = subdirs.Where(x => !PathEx.HasAttribute(x, FileAttributes.Hidden));
 
 			foreach (string subdir in subdirs)
-				foreach (PBODriveFile file in EnumerateFiles( subdir, relativePath + Path.GetFileName(subdir) + "/", dirFilter ) )
-					yield return file;
+				result = result.Concat(EnumerateFiles( subdir, relativePath + Path.GetFileName(subdir) + "/", includeHiddenDirectories, includeHiddenFiles ));
 
-			yield break;
+			return result;
+		}
+
+		private static PBOFile InstantiateFileDescriptor(string path, string relativePath)
+		{
+			path = Path.GetFullPath(path);
+			relativePath = relativePath + (relativePath.Length > 0 ? "\\" : "") + Path.GetFileName(path);
+
+			string name = Path.GetFileName(path);
+			
+			//For future
+			//string extension = Path.GetExtension(name);
+
+			if (name == "config.cpp")
+				return new PBOConfigDescriptor(
+					path,
+					relativePath,
+					_ConfigParser.Parse(new ConfigLexer(new FileInputReader(path)), _ConfigErrorResolver)
+				);
+			else
+				return new PBODriveFile(path, relativePath);
 		}
 	}
 }
