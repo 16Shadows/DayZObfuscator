@@ -120,12 +120,9 @@ namespace DayZObfuscatorModel.PBO.Packer
 					TempFileStream configContent = new TempFileStream();
 
 					if (BinarizeConfig)
-					{
-						using PBOWriter configWriter = new PBOWriter(configContent, true);
-						config.Config.Binarize(configWriter);
-					}
+						config.GetBinarizedContent(configContent);
 					else
-						Encoding.ASCII.GetBytes(config.Config.ToString().AsSpan(), configContent);
+						config.GetContent(configContent);
 					
 					configContent.Position = 0;
 					configContent.Flush();
