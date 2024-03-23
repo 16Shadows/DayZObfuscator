@@ -115,12 +115,12 @@ namespace DayZObfuscatorModel.PBO
 		{
 			ArgumentNullException.ThrowIfNull(pboPath, nameof(pboPath));
 
-			_Filename = (Path.GetFileName(pboPath) ?? "").ToLower();
+			_Filename = PBOPath.ToStandardForm(Path.GetFileName(pboPath));
 
 			if (Path.IsPathRooted(pboPath))
 				throw new ArgumentException($"{nameof(pboPath)} ({pboPath}) should be a valid relative non-rooted path to a file.");
 
-			_PathInPBO = Path.GetDirectoryName(pboPath)?.Replace('/', '\\').Trim().Trim('\\').ToLower() ?? "";
+			_PathInPBO = PBOPath.ToStandardForm(Path.GetDirectoryName(pboPath));
 
 			TimeStamp = 0;
 			Offset = 0;
