@@ -1,12 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DayZObfuscatorModel.PBO.Config.Parser.Lexer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DayZObfuscatorModel.Parser;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DayZObfuscatorModel.PBO.Config.Parser.Lexer.Tests
 {
