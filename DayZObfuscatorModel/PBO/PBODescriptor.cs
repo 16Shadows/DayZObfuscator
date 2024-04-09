@@ -6,7 +6,7 @@ namespace DayZObfuscatorModel.PBO
 	{
 		public IList<PBOFile> Files { get; }
 
-		public ICollection<PBOConfigDescriptor> Configs { get; }
+		public IList<PBOConfigDescriptor> Configs { get; }
 
 		public PBOConfigDescriptor? RootConfig => Configs.FirstOrDefault(x => x.PathInPBO == string.Empty);
 
@@ -22,7 +22,7 @@ namespace DayZObfuscatorModel.PBO
 
 			DirectoryPath = directoryPath;
 			Files = files.ToList();
-			Configs = new SubcollectionAdapter<PBOFile, PBOConfigDescriptor>(Files);
+			Configs = new SublistAdapter<PBOFile, PBOConfigDescriptor>(Files);
 		}
 	}
 }
