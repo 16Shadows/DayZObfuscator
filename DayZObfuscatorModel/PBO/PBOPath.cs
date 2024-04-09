@@ -20,7 +20,7 @@
 
         public static string Combine(params string[] components)
         {
-            return string.Join(PathSeparator, components.Select(ToStandardForm));
+            return ToStandardForm(string.Join(PathSeparator, components.Select(ToStandardForm)));
         }
 	}
 }

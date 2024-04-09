@@ -22,7 +22,7 @@ namespace DayZObfuscatorModel.PBO
 			set
 			{
 				ArgumentNullException.ThrowIfNull(value, nameof(Filename));
-				_Filename = value.ToLower();
+				_Filename = PBOPath.ToStandardForm(value);
 			}
 		}
 
@@ -36,7 +36,7 @@ namespace DayZObfuscatorModel.PBO
 			set
 			{
 				ArgumentNullException.ThrowIfNull(value, nameof(PathInPBO));
-				_PathInPBO = value.Replace('/', '\\').Trim().Trim('\\').ToLower();
+				_PathInPBO = PBOPath.ToStandardForm(value);
 			}
 		}
 

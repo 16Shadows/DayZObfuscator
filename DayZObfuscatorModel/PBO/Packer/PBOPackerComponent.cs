@@ -3,7 +3,8 @@
 	public abstract class PBOPackerComponent
 	{
 		/// <summary>
-		/// Applies this component to a PBO
+		/// Applies this component to a PBO.
+		/// This operation is allowed to mutate the list of files in the PBO.
 		/// </summary>
 		/// <param name="descriptor">The PBO to apply the component to</param>
 		/// <param name="properties">Properties which will be writter to the PBO properties header</param>
