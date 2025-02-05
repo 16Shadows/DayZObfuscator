@@ -423,7 +423,7 @@ namespace DayZObfuscatorConsoleApp
 					Logger?.WriteLine("-warn is set, ignoring config errors");
 			}
 
-			switch (packer.Pack(descriptor, BuilderArgs.OutputDirectory))
+			switch (packer.Pack(descriptor, Path.Combine(BuilderArgs.OutputDirectory, Path.GetFileName(BuilderArgs.TargetDirectory) + ".pbo")))
 			{
 				case PBOPackerErrors.Success:
 					Logger?.WriteLine($"Packing completed.");

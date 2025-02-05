@@ -32,22 +32,28 @@ namespace DayZObfuscatorModel.PBO.Packer
 
 		private readonly Dictionary<string, string> Properties = new Dictionary<string, string>();
 
-		public PBOPackerErrors Pack(PBODescriptor pbo, string outputDirectory)
+		private static readonly HashSet<string> _PrefixFiles = new HashSet<string> {
+			"$prefix$",
+			"$pboprefix$",
+			"prefix"
+		};
+
+		public PBOPackerErrors Pack(PBODescriptor pbo, string outFilename)
 		{
 			ArgumentNullException.ThrowIfNull(pbo);
-			ArgumentException.ThrowIfNullOrEmpty(outputDirectory);
+			ArgumentException.ThrowIfNullOrEmpty(outFilename);
 
 			Properties.Clear();
 
-			outputDirectory = Path.GetFullPath(outputDirectory);
-			Directory.CreateDirectory(outputDirectory);
+			outFilename = Path.GetFullPath(outFilename);
+			Directory.CreateDirectory(Path.GetDirectoryName(outFilename));
 
 			string? prefix = Prefix;
-			
+
 			PBOConfigDescriptor? rootConfig = pbo.RootConfig;
 			if (prefix == null)
 			{
-				PBODriveFile? prefixFile = pbo.Files.FirstOrDefault(x => x.Filename.ToLower() == "$prefix$") as PBODriveFile;
+				PBODriveFile? prefixFile = pbo.Files.FirstOrDefault(x => _PrefixFiles.Contains(Path.GetFileNameWithoutExtension(x.Filename).ToLower())) as PBODriveFile;
 				PBOConfigClass? patchesClass = rootConfig?.Config
 										  .Classes
 										  .FirstOrDefault(x => x.Identifier == "CfgPatches")
@@ -68,7 +74,7 @@ namespace DayZObfuscatorModel.PBO.Packer
 			FileStream outputFile;
 			try
 			{
-				outputFile = new FileStream(Path.Combine(outputDirectory, $"{prefix.Replace(Path.GetInvalidFileNameChars(), '_')}.pbo"), FileMode.Create);
+				outputFile = new FileStream(outFilename, FileMode.Create);
 			}
 			catch
 			{
