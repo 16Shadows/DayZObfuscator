@@ -345,20 +345,23 @@ namespace DayZObfuscatorModel.PBO.Config.Parser
 			while (true)
 			{
 				nextToken = lexer.Peek();
-				if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Comma && nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight && nextToken.TokenType != ConfigToken.ConfigTokenType.EndOfDocument)
+				if (nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_Comma
+					&& nextToken.TokenType != ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight
+					&& nextToken.TokenType != ConfigToken.ConfigTokenType.EndOfDocument)
 				{
 					var error = new ParserErrorBase<ConfigParserErrors, ConfigToken>(nextToken, ConfigParserErrors.ExpectedCommaOrRightCurlyBracket);
 					errors = errors.Append(error);
 					lexer = errorResolver.Resolve(lexer, this, new ParserState<ConfigToken, ConfigParserStates>(states, nextToken, leftBracket, firstValue), error);
+					nextToken = lexer.Peek();
 				}
-				nextToken = lexer.Peek();
 
 				if (nextToken.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketRight || nextToken.TokenType == ConfigToken.ConfigTokenType.EndOfDocument)
 					break;
 				
-				nextToken = lexer.Consume();
+				_ = lexer.Consume();
+				nextToken = lexer.Peek();
 
-				if (firstValue.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketLeft)
+				if (nextToken.TokenType == ConfigToken.ConfigTokenType.Symbol_CurlyBracketLeft)
 				{
 					var result = ParseArray(lexer, states, errorResolver);
 					arr.Add(result.Result);
